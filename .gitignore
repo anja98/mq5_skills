@@ -1,0 +1,27 @@
+# MetaEditor files
+*.ex5
+*.log
+
+# MQL5 compilation files
+MQL5/Include/
+MQL5/Libraries/
+MQL5/Scripts/
+*.mqproj
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*~
+
+# Temporary files
+*.tmp
+*.temp
