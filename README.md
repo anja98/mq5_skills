@@ -21,19 +21,24 @@ An AI skill that teaches Claude, ChatGPT, Gemini, and other AI assistants how to
 
 ## 🚀 Quick Start
 
+### Via skills CLI (Recommended)
+```bash
+npx skills add nawf-dev/mq5_skills
+```
+
 ### For Claude (Anthropic)
 ```bash
-# Upload SKILL.md to your Claude skills directory
+# Upload mql5-ea-expert/SKILL.md to your Claude skills directory
 # Claude auto-applies it when generating EAs
 ```
 
 ### For ChatGPT (OpenAI)
 1. Create Custom GPT
-2. Upload `SKILL.md` to Knowledge Base
+2. Upload `mql5-ea-expert/SKILL.md` to Knowledge Base
 3. System instructions: "Follow MQL5 EA Expert skill guidelines"
 
 ### For Other AI
-- Include `SKILL.md` in conversation context
+- Upload `mql5-ea-expert/SKILL.md` into conversation context
 - Or paste relevant sections when needed
 
 **Test it:**
@@ -51,16 +56,26 @@ Expected: Compile-ready `.mq5` file with proper risk management ✅
 ## 📁 Repository Structure
 
 ```
-mql5-ea-expert/
-├── SKILL.md                  # Core AI skill
-├── evals.json                # Skill validation cases
+mq5_sklis/
+├── mql5-ea-expert/           # Skill package (skills.sh compatible)
+│   ├── SKILL.md              #   Core AI skill — load this into your AI
+│   └── references/
+│       ├── ea-blueprint.md   #   EA output blueprint & standards
+│       └── example-prompts.md#   8 ready-to-use prompts
+├── evals.json                # Skill validation test cases
 ├── README.md                 # Project overview
 ├── CHANGELOG.md              # Version history
 ├── LICENSE                   # MIT + trading disclaimer
-├── docs/                     # Guides and reports
-├── examples/prompts/         # Copy-paste EA prompts
-├── templates/                # Reusable EA blueprints
-└── tools/                    # Validation utilities
+├── docs/
+│   ├── AI_SETUP_GUIDE.md     # Setup for Claude / ChatGPT / Gemini
+│   └── ROADMAP.md            # Planned improvements
+└── tools/
+    └── validate_repo.py      # Repo structure validator
+```
+
+**Install via skills CLI:**
+```bash
+npx skills add YOUR_GITHUB_USERNAME/mq5_sklis
 ```
 
 ---
@@ -162,8 +177,8 @@ Run test:
 ## 📖 Documentation
 
 - **[AI Setup Guide](docs/AI_SETUP_GUIDE.md)** - Platform-specific instructions (Claude, ChatGPT, Gemini)
-- **[Example Prompts](examples/prompts/README.md)** - Ready-to-use generation prompts (CRT, SMC, ICT, Asian Range, etc.)
-- **[EA Blueprint](templates/ea-blueprint.md)** - Standard structure for generated EAs
+- **[Example Prompts](mql5-ea-expert/references/example-prompts.md)** - 8 ready-to-use prompts (CRT, SMC, ICT, Asian Range, etc.)
+- **[EA Blueprint](mql5-ea-expert/references/ea-blueprint.md)** - Standard structure for generated EAs
 - **[Roadmap](docs/ROADMAP.md)** - Planned improvements
 - **[Changelog](CHANGELOG.md)** - Version history
 - **[Contributing](CONTRIBUTING.md)** - Contribution workflow

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-05-20
+
+### Changed
+- Moved `SKILL.md` into `mql5-ea-expert/` subfolder for skills.sh compatibility.
+- Moved `templates/ea-blueprint.md` → `mql5-ea-expert/references/ea-blueprint.md`.
+- Moved `examples/prompts/README.md` → `mql5-ea-expert/references/example-prompts.md`.
+- Removed now-empty `templates/` and `examples/` directories.
+- Updated `tools/validate_repo.py` to check new paths.
+- Updated `README.md` install instructions with `npx skills add` command.
+
 ## [2.0.0] - 2026-05-20
 
 ### Added

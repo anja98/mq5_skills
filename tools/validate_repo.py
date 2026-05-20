@@ -11,9 +11,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_PATHS = [
-    "SKILL.md", "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "LICENSE", "evals.json",
+    "mql5-ea-expert/SKILL.md",
+    "mql5-ea-expert/references/ea-blueprint.md",
+    "mql5-ea-expert/references/example-prompts.md",
+    "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "LICENSE", "evals.json",
     "docs/AI_SETUP_GUIDE.md", "docs/ROADMAP.md",
-    "examples/prompts/README.md", "templates/ea-blueprint.md", "tools/validate_repo.py",
+    "tools/validate_repo.py",
 ]
 
 def fail(message: str) -> None:
@@ -26,7 +29,7 @@ def check_required_paths() -> None:
         fail("Missing required paths: " + ", ".join(missing))
 
 def check_skill_frontmatter() -> None:
-    text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    text = (ROOT / "mql5-ea-expert/SKILL.md").read_text(encoding="utf-8")
     if not text.startswith("---\n") or text.find("\n---", 4) == -1:
         fail("SKILL.md frontmatter invalid")
     frontmatter = text[4:text.find("\n---", 4)]
