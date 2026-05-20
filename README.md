@@ -75,7 +75,7 @@ mq5_sklis/
 
 **Install via skills CLI:**
 ```bash
-npx skills add YOUR_GITHUB_USERNAME/mq5_sklis
+npx skills add nawf-dev/mq5_sklis
 ```
 
 ---
