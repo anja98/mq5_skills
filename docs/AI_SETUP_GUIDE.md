@@ -410,7 +410,7 @@ Follow survival-first principles and include all safety features.
 
 **Issues with Setup?**
 - Check if file uploaded correctly
-- Verify file size (SKILL.md is ~74KB)
+- Verify file uploaded correctly (SKILL.md)
 - Ensure AI can access uploaded content
 - Try alternative setup method for your platform
 

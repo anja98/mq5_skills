@@ -11,6 +11,7 @@ MQL5/Scripts/
 # IDE files
 .vscode/
 .idea/
+.claude/settings.local.json
 *.sublime-*
 
 # OS files
@@ -25,3 +26,6 @@ desktop.ini
 # Temporary files
 *.tmp
 *.temp
+
+# Session change logs (local reference only)
+CHANGES.md

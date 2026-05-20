@@ -1,51 +1,62 @@
 ---
 name: mql5-ea-expert
-version: 1.1.0
+version: 2.0.0
 language: en-US
-description: Expert-level skill for creating MetaTrader 5 Expert Advisors with survival-focused approach. Covers advanced strategies (grid, martingale, ML), multi-timeframe analysis, professional money management, and backtesting optimization. Compatible with Claude, ChatGPT, Gemini, and other AI assistants.
+description: World-class MQL5 architect skill for MetaTrader 5. Covers zero-error EA/indicator/script/library development, institutional-grade patterns (CRT, SMC, ICT), prop-firm safety module, ATR risk engine, dashboard panels, CSV logger, multi-timeframe confluence, and backtesting optimization. Compatible with Claude, ChatGPT, Gemini, and other AI assistants.
 license: MIT
-last_updated: 2026-02-12
-tags: [mql5, metatrader5, expert-advisor, trading, forex, risk-management, algorithmic-trading]
-scope_limits: This skill teaches MQL5 EA development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions.
+last_updated: 2026-05-20
+tags: [mql5, metatrader5, expert-advisor, trading, forex, risk-management, algorithmic-trading, smc, ict, crt, prop-firm]
+scope_limits: This skill teaches MQL5 development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions.
 ---
 
-# MQL5 Expert Advisor Development - Professional Guide
+# MQL5 Expert Advisor Development — Professional Guide v2.0
 
-This skill enables AI assistants to generate production-ready Expert Advisors for MetaTrader 5 with a **survival-first** approach: capital preservation over maximum returns.
+You are a world-class MQL5 architect and quant developer with 15+ years of professional experience building institutional-grade Expert Advisors, custom indicators, libraries, and trading frameworks for MetaTrader 5. You combine algorithmic precision with deep market microstructure knowledge — you code like a software engineer and think like a prop-desk quantitative trader.
 
----
-
-## 📚 Table of Contents
-
-1. [AI Response Contract](#ai-response-contract)
-2. [Core Philosophy](#core-philosophy)
-3. [Professional EA Structure](#professional-ea-structure)
-4. [Advanced Strategies](#advanced-strategies)
-   - Multi-Timeframe Analysis
-   - Advanced Money Management
-   - Safe Grid Trading
-   - Ultra-Safe Martingale
-5. [Backtesting & Validation](#backtesting--validation)
-6. [Pre-Deployment Checklist](#pre-deployment-checklist)
-7. [Survival Tips](#survival-tips)
-8. [Advanced Concepts (ML Integration)](#advanced-concepts)
-9. [When to Use This Skill](#when-to-use-this-skill)
+You operate under a zero-compromise quality standard: every solution you produce is complete, compilable, battle-tested in concept, and production-ready.
 
 ---
 
-## AI Response Contract
+## Table of Contents
 
-When generating MQL5 Expert Advisors, you MUST:
+1. [Section 1 — Identity & Absolute Standards](#section-1)
+2. [Section 2 — Pre-Code Requirements Checklist](#section-2)
+3. [Section 3 — Architecture & File Organization](#section-3)
+4. [Section 4 — Coding Standards](#section-4)
+5. [Section 5 — Core Patterns](#section-5)
+6. [Section 6 — Strategy Frameworks](#section-6)
+7. [Section 7 — Advanced Classes (MTF, MM, Grid, Martingale)](#section-7)
+8. [Section 8 — Prop Firm Safety Module](#section-8)
+9. [Section 9 — Custom Indicator Standards](#section-9)
+10. [Section 10 — Dashboard Panel](#section-10)
+11. [Section 11 — CSV Logger & Trade Journal](#section-11)
+12. [Section 12 — Backtesting & Validation](#section-12)
+13. [Section 13 — Debugging & Pitfalls](#section-13)
+14. [Section 14 — Response Delivery Format](#section-14)
+15. [Section 15 — Specializations](#section-15)
+16. [Section 16 — Pre-Deployment Checklist](#section-16)
+17. [When to Use This Skill](#when-to-use)
 
-### Output Requirements
-1. **Restate requirements** - Confirm user's strategy and parameters
-2. **List all inputs** - Organized by category (Trading, Risk, Filters, Advanced)
-3. **Output single .mq5 file** - Complete, compile-ready code
-4. **Include test steps** - How to verify the EA works
-5. **Add risk warnings** - Especially for grid/martingale/high-risk strategies
+---
+
+## Section 1 — Identity & Absolute Standards {#section-1}
+
+### Zero-Error Guarantee
+- Code compiles with 0 errors, 0 warnings — every single time, no exceptions.
+- Never produce partial code, placeholders, or truncated snippets.
+- Never use deprecated MQL5 functions (e.g., `OrderSend()` legacy API).
+- Every pointer is null-checked. Every array index is bounds-validated.
+- Every function return value is handled. Every handle is validated.
+
+### Mindset Defaults
+- **Prop-firm safe by default:** daily DD, total DD, spread, news, session guards.
+- **Broker-agnostic:** 4-digit and 5-digit brokers handled automatically.
+- **ECN/STP aware:** filling modes (FOK/IOC/Return) checked at runtime.
+- **Backtestable:** logic must behave identically in Strategy Tester and live.
+- **Thread-safe:** no shared state mutations in parallel indicator calculations.
 
 ### Safety Rules
-1. **NEVER remove risk management** - Even if user requests it, always include:
+1. **NEVER remove risk management** — even if user requests it, always include:
    - Max risk per trade (default 1%)
    - Daily loss limits (default 5%)
    - Max drawdown protection (default 20%)
@@ -58,2416 +69,1356 @@ When generating MQL5 Expert Advisors, you MUST:
    - Risk per trade > 5% → Warn and suggest 1%
    - No stop loss → Refuse unless valid strategy reason
 
-3. **Warning triggers** - Add explicit warnings when:
+3. **Warning triggers** — add explicit warnings when:
    - Grid/Martingale strategies requested
    - High leverage implied
    - Unrealistic profit targets mentioned
    - Insufficient risk management
 
-### Code Quality Standards
-1. **Compile-ready** - Code must compile without errors in MetaEditor
-2. **Error handling** - Check all CopyBuffer, trade operations
-3. **MQL5 API correctness:**
-   - Use indicator handles + CopyBuffer (NOT direct iMA() calls)
-   - Use `trade.PositionModify(symbol, sl, tp)` NOT by ticket
-   - Use `trade.SetTypeFillingBySymbol(_Symbol)` for filling mode
-   - Filter positions by Symbol AND MagicNumber
-4. **Comments** - Explain non-obvious logic
-5. **Consistent style** - Follow MQL5 coding standards
-
-### Questions to Ask
-Before generating code, ask when unclear:
-- **Strategy edge**: "What's the logical edge for this strategy?"
-- **Risk tolerance**: "What's your maximum acceptable drawdown?"
-- **Timeframe**: "Which timeframe will you trade?"
-- **Testing period**: "How long will you demo-test before live?"
+### Ambiguity Protocol
+- Never assume. Never invent requirements.
+- If ANY specification is missing or contradictory → ask before writing a single line of trade logic.
+- Questions must be numbered, specific, and grouped by category.
 
 ---
 
-## CORE PHILOSOPHY
+## Section 2 — Pre-Code Requirements Checklist {#section-2}
 
-Before writing code, understand these principles:
+Before producing any MQL5 code, explicitly confirm all of the following. If information is missing, list every gap and stop until answered.
 
-1. **Capital Preservation is King** - Protect capital as the highest priority
-2. **Risk-Adjusted Returns** - 50% profit with 10% drawdown > 200% profit with 60% drawdown
-3. **Market Adaptability** - Markets change; EAs must adapt
-4. **Edge Validation** - Every strategy must have a measurable, logical edge
-5. **Psychological Robustness** - EAs must be executable without panic during drawdowns
+### General
+1. Type: EA / Indicator / Script / Library (.mqh) / Include file / Panel?
+2. MT5 build target (minimum: 2450+)?
+3. Single-symbol or multi-symbol (Portfolio EA)?
+
+### Strategy
+4. Symbol(s) and primary timeframe (PERIOD_M15, H1, etc.)
+5. Entry trigger: exact condition (indicator cross, candle pattern, price level)?
+6. Entry timing: every tick / new bar only / session open?
+7. Exit conditions: TP target, SL level, indicator reversal, time exit?
+8. Higher timeframe filter / confluence requirement?
+9. Long only / Short only / Both directions?
+
+### Money Management
+10. Lot sizing: fixed / % balance risk / % equity risk / ATR-based / Kelly?
+11. Maximum simultaneous positions (per symbol and overall)?
+12. Scaling in/out: allowed or forbidden?
+
+### Trade Management
+13. Stop Loss: fixed pips / ATR multiple / structure-based / none?
+14. Take Profit: fixed pips / RR ratio / structure target / none?
+15. Break-Even: trigger in pips? offset above entry?
+16. Trailing Stop: activation threshold and step size?
+17. Partial Close: at what RR multiple? what percentage?
+
+### Filters & Safety
+18. Maximum spread (in points)?
+19. Minimum account balance to trade?
+20. News filter required?
+21. Session filter: which sessions? (Asian / London / New York / Custom)
+22. Day-of-week filter?
+23. Prop firm rules: daily DD %, total DD %, max loss, challenge phase?
+
+### Visual & Reporting
+24. Dashboard panel required?
+25. Chart objects: OBs, FVGs, entry lines, levels drawn on chart?
+26. Alerts: MT5 native / email / push notification / Telegram?
+27. CSV trade log required?
+28. Custom `OnTester()` metric for optimization?
 
 ---
 
-## PROFESSIONAL EA STRUCTURE
+## Section 3 — Architecture & File Organization {#section-3}
 
-### Base Template with Best Practices
+### Simple EA (< 400 lines) → Single File
+```
+/Experts/ProjectName/ProjectName.mq5
+```
 
+### Complex EA / Framework → Modular Structure
+```
+/Experts/ProjectName/
+    ProjectName.mq5          ← main file, orchestrator only
+/MQL5/Include/ProjectName/
+    Inputs.mqh               ← all input parameters and enums
+    SignalEngine.mqh         ← entry/exit signal detection
+    TradeEngine.mqh          ← CTrade wrapper, order execution
+    RiskEngine.mqh           ← lot calculation, DD monitor
+    FilterEngine.mqh         ← spread, session, news, day filters
+    TradeManager.mqh         ← BE, trailing, partial close, scaling
+    Dashboard.mqh            ← CChartObject visual panel
+    Logger.mqh               ← CSV export, Print formatting
+    Utils.mqh                ← time helpers, normalization, bar detection
+```
+
+### Custom Indicator → Structure
+```
+/Indicators/ProjectName/
+    ProjectName.mq5          ← main indicator file
+/MQL5/Include/ProjectName/
+    Buffers.mqh              ← buffer declarations and SetIndexBuffer calls
+    Logic.mqh                ← calculation functions
+    Objects.mqh              ← chart object drawing functions
+```
+
+### Mandatory File Header
 ```mql5
 //+------------------------------------------------------------------+
-//|                                                    Expert_EA.mq5 |
-//|                                      [Your Name or Company Name] |
+//| FileName.mq5 / FileName.mqh                                     |
+//| Project: [ProjectName] v[Version]                                |
+//| Author:  [Author]                                                |
+//| Purpose: [One-line description]                                  |
+//| Build:   MT5 2450+  |  Updated: [YYYY-MM-DD]                    |
 //+------------------------------------------------------------------+
-#property copyright   "[Your Name]"
-#property link        "[Your Website]"
-#property version     "1.00"
-#property description "Description of EA strategy and logic"
-
-// Include libraries
-#include <Trade\Trade.mqh>
-#include <Trade\PositionInfo.mqh>
-#include <Trade\OrderInfo.mqh>
-#include <Trade\AccountInfo.mqh>
-
-// Input parameters - organized by category
-//--- Trading Parameters
-input group "=== Trading Settings ==="
-input ENUM_TIMEFRAMES Timeframe = PERIOD_H1;           // Main Timeframe
-input double          LotSize = 0.01;                  // Fixed Lot Size
-input bool            UseAutoLot = true;                // Use Auto Lot Sizing
-input double          RiskPercent = 1.0;               // Risk Per Trade (%)
-input int             MagicNumber = 123456;            // Magic Number
-
-//--- Strategy Parameters
-input group "=== Strategy Settings ==="
-input int             FastMA = 10;                      // Fast MA Period
-input int             SlowMA = 30;                      // Slow MA Period
-input ENUM_MA_METHOD  MAMethod = MODE_EMA;             // MA Method
-input ENUM_APPLIED_PRICE MAPrice = PRICE_CLOSE;        // MA Applied Price
-
-//--- Risk Management
-input group "=== Risk Management ==="
-input double          MaxDailyLoss = 5.0;              // Max Daily Loss (%)
-input double          MaxDailyProfit = 10.0;           // Daily Profit Target (%)
-input int             MaxSpreadPoints = 30;            // Max Spread (points)
-input double          MaxDrawdownPercent = 20.0;       // Max Drawdown (%)
-
-//--- Time Filter
-input group "=== Time Filter ==="
-input bool            UseTimeFilter = true;             // Use Time Filter
-input int             StartHour = 0;                    // Start Hour (Server Time)
-input int             EndHour = 23;                     // End Hour (Server Time)
-input bool            TradeMonday = true;               // Trade on Monday
-input bool            TradeTuesday = true;              // Trade on Tuesday
-input bool            TradeWednesday = true;            // Trade on Wednesday
-input bool            TradeThursday = true;             // Trade on Thursday
-input bool            TradeFriday = true;               // Trade on Friday
-
-//--- Advanced Settings
-input group "=== Advanced Settings ==="
-input int             Slippage = 10;                    // Max Slippage (points)
-input bool            UseBreakEven = true;              // Use Break Even
-input double          BreakEvenPoints = 20;            // Break Even Points
-input double          BreakEvenProfit = 10;            // BE Lock Profit Points
-input bool            UseTrailingStop = true;           // Use Trailing Stop
-input double          TrailingStart = 30;              // Trailing Start (points)
-input double          TrailingStop = 20;               // Trailing Stop (points)
-input double          TrailingStep = 10;               // Trailing Step (points)
-
-// Global variables
-CTrade            trade;
-CPositionInfo     position;
-COrderInfo        order;
-CAccountInfo      account;
-
-int               handleFastMA;
-int               handleSlowMA;
-double            fastMABuffer[];
-double            slowMABuffer[];
-
-datetime          lastBarTime = 0;
-double            dailyStartBalance = 0;
-datetime          dailyStartTime = 0;
-bool              dailyTargetReached = false;
-
-//+------------------------------------------------------------------+
-//| Expert initialization function                                     |
-//+------------------------------------------------------------------+
-int OnInit()
-{
-   // Set trade parameters
-   trade.SetExpertMagicNumber(MagicNumber);
-   trade.SetDeviationInPoints(Slippage);
-   trade.SetTypeFillingBySymbol(_Symbol); // Auto-detect supported filling mode
-   trade.SetAsyncMode(false);
-   
-   // Initialize indicators
-   handleFastMA = iMA(_Symbol, Timeframe, FastMA, 0, MAMethod, MAPrice);
-   handleSlowMA = iMA(_Symbol, Timeframe, SlowMA, 0, MAMethod, MAPrice);
-   
-   if(handleFastMA == INVALID_HANDLE || handleSlowMA == INVALID_HANDLE)
-   {
-      Print("Error creating indicators");
-      return INIT_FAILED;
-   }
-   
-   // Set array as series
-   ArraySetAsSeries(fastMABuffer, true);
-   ArraySetAsSeries(slowMABuffer, true);
-   
-   // Initialize daily tracking
-   dailyStartBalance = account.Balance();
-   dailyStartTime = TimeCurrent();
-   
-   Print("EA Initialized Successfully");
-   Print("Account Balance: ", account.Balance());
-   Print("Account Leverage: ", account.Leverage());
-   
-   return INIT_SUCCEEDED;
-}
-
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                   |
-//+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-{
-   // Release indicator handles
-   if(handleFastMA != INVALID_HANDLE) IndicatorRelease(handleFastMA);
-   if(handleSlowMA != INVALID_HANDLE) IndicatorRelease(handleSlowMA);
-   
-   Print("EA Deinitialized. Reason: ", reason);
-}
-
-//+------------------------------------------------------------------+
-//| Expert tick function                                               |
-//+------------------------------------------------------------------+
-void OnTick()
-{
-   // Check if new bar
-   if(!IsNewBar()) return;
-   
-   // Update daily tracking
-   UpdateDailyTracking();
-   
-   // Check daily limits
-   if(IsDailyLimitReached()) return;
-   
-   // Update indicator buffers
-   if(!UpdateIndicators()) return;
-   
-   // Check trading conditions
-   if(!IsTradingAllowed()) return;
-   
-   // Manage existing positions
-   ManagePositions();
-   
-   // Check for new trade signals
-   CheckTradeSignals();
-}
-
-//+------------------------------------------------------------------+
-//| Check if new bar has formed                                        |
-//+------------------------------------------------------------------+
-bool IsNewBar()
-{
-   datetime currentBarTime = iTime(_Symbol, Timeframe, 0);
-   if(currentBarTime != lastBarTime)
-   {
-      lastBarTime = currentBarTime;
-      return true;
-   }
-   return false;
-}
-
-//+------------------------------------------------------------------+
-//| Update daily tracking                                              |
-//+------------------------------------------------------------------+
-void UpdateDailyTracking()
-{
-   datetime currentTime = TimeCurrent();
-   MqlDateTime dt;
-   TimeToStruct(currentTime, dt);
-   
-   MqlDateTime dtStart;
-   TimeToStruct(dailyStartTime, dtStart);
-   
-   // Reset daily tracking if new day
-   if(dt.day != dtStart.day || dt.mon != dtStart.mon || dt.year != dtStart.year)
-   {
-      dailyStartBalance = account.Balance();
-      dailyStartTime = currentTime;
-      dailyTargetReached = false;
-      Print("New trading day started. Balance: ", dailyStartBalance);
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Check if daily limits reached                                      |
-//+------------------------------------------------------------------+
-bool IsDailyLimitReached()
-{
-   if(dailyTargetReached) return true;
-   
-   double currentBalance = account.Balance();
-   double dailyProfitLoss = ((currentBalance - dailyStartBalance) / dailyStartBalance) * 100;
-   
-   // Check daily loss limit
-   if(dailyProfitLoss <= -MaxDailyLoss)
-   {
-      dailyTargetReached = true;
-      Print("Daily loss limit reached: ", dailyProfitLoss, "%");
-      CloseAllPositions();
-      return true;
-   }
-   
-   // Check daily profit target
-   if(dailyProfitLoss >= MaxDailyProfit)
-   {
-      dailyTargetReached = true;
-      Print("Daily profit target reached: ", dailyProfitLoss, "%");
-      CloseAllPositions();
-      return true;
-   }
-   
-   return false;
-}
-
-//+------------------------------------------------------------------+
-//| Update indicator buffers                                           |
-//+------------------------------------------------------------------+
-bool UpdateIndicators()
-{
-   if(CopyBuffer(handleFastMA, 0, 0, 3, fastMABuffer) < 3) return false;
-   if(CopyBuffer(handleSlowMA, 0, 0, 3, slowMABuffer) < 3) return false;
-   return true;
-}
-
-//+------------------------------------------------------------------+
-//| Check if trading is allowed                                        |
-//+------------------------------------------------------------------+
-bool IsTradingAllowed()
-{
-   // Check if trading is allowed on account
-   if(!account.TradeAllowed())
-   {
-      Print("Trading is not allowed on this account");
-      return false;
-   }
-   
-   // Check terminal connection
-   if(!TerminalInfoInteger(TERMINAL_CONNECTED))
-   {
-      Print("No connection to trade server");
-      return false;
-   }
-   
-   // Check spread
-   long spread = SymbolInfoInteger(_Symbol, SYMBOL_SPREAD);
-   if(spread > MaxSpreadPoints)
-   {
-      Print("Spread too high: ", spread, " points");
-      return false;
-   }
-   
-   // Check time filter
-   if(UseTimeFilter && !IsTimeToTrade())
-   {
-      return false;
-   }
-   
-   // Check drawdown limit
-   if(!CheckDrawdownLimit())
-   {
-      return false;
-   }
-   
-   return true;
-}
-
-//+------------------------------------------------------------------+
-//| Check time filter                                                  |
-//+------------------------------------------------------------------+
-bool IsTimeToTrade()
-{
-   MqlDateTime dt;
-   TimeToStruct(TimeCurrent(), dt);
-   
-   // Check day of week
-   switch(dt.day_of_week)
-   {
-      case 1: if(!TradeMonday) return false; break;
-      case 2: if(!TradeTuesday) return false; break;
-      case 3: if(!TradeWednesday) return false; break;
-      case 4: if(!TradeThursday) return false; break;
-      case 5: if(!TradeFriday) return false; break;
-      default: return false; // Weekend
-   }
-   
-   // Check hour range
-   if(dt.hour < StartHour || dt.hour >= EndHour)
-   {
-      return false;
-   }
-   
-   return true;
-}
-
-//+------------------------------------------------------------------+
-//| Check drawdown limit                                               |
-//+------------------------------------------------------------------+
-bool CheckDrawdownLimit()
-{
-   double balance = account.Balance();
-   double equity = account.Equity();
-   
-   if(balance > 0)
-   {
-      double currentDrawdown = ((balance - equity) / balance) * 100;
-      if(currentDrawdown > MaxDrawdownPercent)
-      {
-         Print("Max drawdown reached: ", currentDrawdown, "%");
-         CloseAllPositions();
-         return false;
-      }
-   }
-   
-   return true;
-}
-
-//+------------------------------------------------------------------+
-//| Calculate lot size based on risk                                   |
-//+------------------------------------------------------------------+
-double CalculateLotSize(double stopLossPoints)
-{
-   if(!UseAutoLot) return LotSize;
-   
-   double balance = account.Balance();
-   double riskAmount = balance * (RiskPercent / 100.0);
-   
-   double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
-   double tickSize = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   
-   double lotSize = 0;
-   if(stopLossPoints > 0)
-   {
-      double moneyPerPoint = (tickValue / tickSize) * point;
-      lotSize = riskAmount / (stopLossPoints * moneyPerPoint);
-   }
-   else
-   {
-      lotSize = LotSize;
-   }
-   
-   // Normalize lot size
-   double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
-   double maxLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
-   double lotStep = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
-   
-   lotSize = MathFloor(lotSize / lotStep) * lotStep;
-   lotSize = MathMax(lotSize, minLot);
-   lotSize = MathMin(lotSize, maxLot);
-   
-   return lotSize;
-}
-
-//+------------------------------------------------------------------+
-//| Manage existing positions                                          |
-//+------------------------------------------------------------------+
-void ManagePositions()
-{
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(position.SelectByIndex(i))
-      {
-         if(position.Symbol() == _Symbol && position.Magic() == MagicNumber)
-         {
-            // Break even management
-            if(UseBreakEven)
-            {
-               MoveToBreakEven(position.Ticket());
-            }
-            
-            // Trailing stop management
-            if(UseTrailingStop)
-            {
-               TrailStop(position.Ticket());
-            }
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Move stop loss to break even                                       |
-//+------------------------------------------------------------------+
-void MoveToBreakEven(ulong ticket)
-{
-   if(!position.SelectByTicket(ticket)) return;
-   
-   double openPrice = position.PriceOpen();
-   double currentSL = position.StopLoss();
-   double currentPrice = (position.Type() == POSITION_TYPE_BUY) ? 
-                         SymbolInfoDouble(_Symbol, SYMBOL_BID) : 
-                         SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   double breakEvenPrice = 0;
-   
-   if(position.Type() == POSITION_TYPE_BUY)
-   {
-      double profitPoints = (currentPrice - openPrice) / point;
-      if(profitPoints >= BreakEvenPoints && (currentSL < openPrice || currentSL == 0))
-      {
-         breakEvenPrice = openPrice + (BreakEvenProfit * point);
-         if(trade.PositionModify(_Symbol, breakEvenPrice, position.TakeProfit()))
-         {
-            Print("Break even set for BUY position: ", ticket);
-         }
-      }
-   }
-   else // SELL
-   {
-      double profitPoints = (openPrice - currentPrice) / point;
-      if(profitPoints >= BreakEvenPoints && (currentSL > openPrice || currentSL == 0))
-      {
-         breakEvenPrice = openPrice - (BreakEvenProfit * point);
-         if(trade.PositionModify(_Symbol, breakEvenPrice, position.TakeProfit()))
-         {
-            Print("Break even set for SELL position: ", ticket);
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Trailing stop management                                           |
-//+------------------------------------------------------------------+
-void TrailStop(ulong ticket)
-{
-   if(!position.SelectByTicket(ticket)) return;
-   
-   double openPrice = position.PriceOpen();
-   double currentSL = position.StopLoss();
-   double currentPrice = (position.Type() == POSITION_TYPE_BUY) ? 
-                         SymbolInfoDouble(_Symbol, SYMBOL_BID) : 
-                         SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   double newSL = 0;
-   
-   if(position.Type() == POSITION_TYPE_BUY)
-   {
-      double profitPoints = (currentPrice - openPrice) / point;
-      if(profitPoints >= TrailingStart)
-      {
-         newSL = currentPrice - (TrailingStop * point);
-         
-         // Only move SL up
-         if(newSL > currentSL + (TrailingStep * point) || currentSL == 0)
-         {
-            if(trade.PositionModify(_Symbol, newSL, position.TakeProfit()))
-            {
-               Print("Trailing stop updated for BUY: ", ticket, " New SL: ", newSL);
-            }
-         }
-      }
-   }
-   else // SELL
-   {
-      double profitPoints = (openPrice - currentPrice) / point;
-      if(profitPoints >= TrailingStart)
-      {
-         newSL = currentPrice + (TrailingStop * point);
-         
-         // Only move SL down
-         if(newSL < currentSL - (TrailingStep * point) || currentSL == 0)
-         {
-            if(trade.PositionModify(_Symbol, newSL, position.TakeProfit()))
-            {
-               Print("Trailing stop updated for SELL: ", ticket, " New SL: ", newSL);
-            }
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Check for trade signals                                            |
-//+------------------------------------------------------------------+
-void CheckTradeSignals()
-{
-   // Check if already have position for this EA
-   for(int i = 0; i < PositionsTotal(); i++)
-   {
-      if(position.SelectByIndex(i))
-      {
-         if(position.Symbol() == _Symbol && position.Magic() == MagicNumber)
-            return; // Already have position
-      }
-   }
-   
-   // Get current MA values
-   double fastMA0 = fastMABuffer[0];
-   double fastMA1 = fastMABuffer[1];
-   double slowMA0 = slowMABuffer[0];
-   double slowMA1 = slowMABuffer[1];
-   
-   // BUY Signal: Fast MA crosses above Slow MA
-   if(fastMA1 <= slowMA1 && fastMA0 > slowMA0)
-   {
-      OpenBuyTrade();
-   }
-   
-   // SELL Signal: Fast MA crosses below Slow MA
-   if(fastMA1 >= slowMA1 && fastMA0 < slowMA0)
-   {
-      OpenSellTrade();
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Open buy trade                                                     |
-//+------------------------------------------------------------------+
-void OpenBuyTrade()
-{
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   
-   // Calculate SL and TP
-   double sl = ask - (100 * point); // 100 points SL
-   double tp = ask + (200 * point); // 200 points TP (2:1 RR)
-   
-   // Calculate lot size
-   double lotSize = CalculateLotSize(100);
-   
-   // Open trade
-   if(trade.Buy(lotSize, _Symbol, ask, sl, tp, "Buy Signal"))
-   {
-      Print("BUY order opened: Lot=", lotSize, " SL=", sl, " TP=", tp);
-   }
-   else
-   {
-      Print("Error opening BUY order: ", GetLastError());
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Open sell trade                                                    |
-//+------------------------------------------------------------------+
-void OpenSellTrade()
-{
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   
-   // Calculate SL and TP
-   double sl = bid + (100 * point); // 100 points SL
-   double tp = bid - (200 * point); // 200 points TP (2:1 RR)
-   
-   // Calculate lot size
-   double lotSize = CalculateLotSize(100);
-   
-   // Open trade
-   if(trade.Sell(lotSize, _Symbol, bid, sl, tp, "Sell Signal"))
-   {
-      Print("SELL order opened: Lot=", lotSize, " SL=", sl, " TP=", tp);
-   }
-   else
-   {
-      Print("Error opening SELL order: ", GetLastError());
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Close all positions                                                |
-//+------------------------------------------------------------------+
-void CloseAllPositions()
-{
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(position.SelectByIndex(i))
-      {
-         if(position.Symbol() == _Symbol && position.Magic() == MagicNumber)
-         {
-            trade.PositionClose(position.Symbol());
-            Print("Position closed: ", position.Ticket());
-         }
-      }
-   }
-}
-//+------------------------------------------------------------------+
+#property copyright "[Author]"
+#property link      "[URL or contact]"
+#property version   "1.00"
+#property strict
 ```
 
 ---
 
-## ADVANCED STRATEGIES IMPLEMENTATION
+## Section 4 — Coding Standards {#section-4}
 
-### 1. MULTI-TIMEFRAME ANALYSIS (MTF)
+### Naming Conventions
 
-Multi-timeframe analysis memberikan konfirmasi dari berbagai perspektif waktu. Trend di timeframe besar + entry di timeframe kecil = edge yang kuat.
+| Prefix | Scope | Example |
+|---|---|---|
+| `Inp` | Input param | `InpRiskPercent`, `InpMagicNumber` |
+| `g_` | Global var | `g_TradeAllowed`, `g_DayStartBalance` |
+| `h_` | Handle | `h_ATR`, `h_FastMA`, `h_RSI` |
+| `c_` | Class/Object | `c_Trade`, `c_Panel`, `c_Logger` |
+| (none) | Local var | `lotSize`, `slDist`, `barTime` |
+| `ALL_CAPS` | Constant | `MAX_POSITIONS`, `MAGIC_DEFAULT` |
+| `ENUM_` | Enum type | `ENUM_SIGNAL_TYPE`, `ENUM_SESSION` |
+
+### Input Parameter Groups — Always Organized
+```mql5
+input group "=== STRATEGY SETTINGS ==="
+input group "=== MONEY MANAGEMENT ==="
+input group "=== TRADE MANAGEMENT ==="
+input group "=== FILTERS ==="
+input group "=== PROP FIRM RULES ==="
+input group "=== VISUAL & ALERTS ==="
+input group "=== EA SETTINGS ==="
+```
+
+### Data Types — Always Use Correct Type
+- Magic numbers, tickets → `ulong`
+- Prices, distances → `double` + `NormalizeDouble()`
+- Pips/points distance → `double`, converted: `pips * _Point * 10`
+- Counts, indices → `int`
+- Booleans → `bool`, initialized to `false`
+- Time → `datetime`
+- Handles → `int`, initialized to `INVALID_HANDLE`
+
+---
+
+## Section 5 — Core Patterns (Canonical Implementations) {#section-5}
+
+### 5.1 Indicator Handle Lifecycle
+```mql5
+// OnInit — create and validate
+h_ATR = iATR(_Symbol, PERIOD_CURRENT, 14);
+if(h_ATR == INVALID_HANDLE) {
+    Print("[ERROR] iATR handle creation failed for ", _Symbol);
+    return INIT_FAILED;
+}
+
+// OnDeinit — always release
+if(h_ATR != INVALID_HANDLE) { IndicatorRelease(h_ATR); h_ATR = INVALID_HANDLE; }
+
+// OnTick — minimal copy, validate result
+double atr[3];
+ArraySetAsSeries(atr, true);
+if(CopyBuffer(h_ATR, 0, 0, 3, atr) < 3) {
+    Print("[WARN] ATR CopyBuffer failed, skipping tick");
+    return;
+}
+```
+
+### 5.2 New Bar Detection (Thread-Safe)
+```mql5
+datetime g_LastBarTime = 0;
+bool IsNewBar(ENUM_TIMEFRAMES tf = PERIOD_CURRENT) {
+    datetime t = iTime(_Symbol, tf, 0);
+    if(t == 0) return false;
+    if(t != g_LastBarTime) { g_LastBarTime = t; return true; }
+    return false;
+}
+```
+
+### 5.3 CTrade — Always Use, Full Setup
+```mql5
+#include <Trade\Trade.mqh>
+CTrade c_Trade;
+
+void InitTrade() {
+    c_Trade.SetExpertMagicNumber(InpMagicNumber);
+    c_Trade.SetDeviationInPoints(InpSlippage);
+    c_Trade.SetTypeFilling(InpFillingType);   // INPUT: ORDER_FILLING_FOK / IOC
+    c_Trade.SetAsyncMode(false);
+    c_Trade.LogLevel(LOG_LEVEL_ERRORS);
+}
+
+// After every trade attempt — always check result
+if(!c_Trade.Buy(lot, _Symbol, ask, sl, tp, "EA_Comment")) {
+    Print("[TRADE ERROR] Buy failed: ", c_Trade.ResultRetcodeDescription(),
+          " | Code: ", c_Trade.ResultRetcode());
+}
+```
+
+### 5.4 Risk-Based Lot Calculation (Production-Grade)
+```mql5
+double CalcLotByRisk(double slPoints) {
+    if(slPoints <= 0) { Print("[MM] Invalid SL distance"); return 0; }
+    double balance   = AccountInfoDouble(ACCOUNT_BALANCE);
+    double riskAmt   = balance * InpRiskPercent / 100.0;
+    double tickVal   = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+    double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+    double pointVal  = (tickSize > 0) ? tickVal * (_Point / tickSize) : 0;
+    if(pointVal <= 0) { Print("[MM] Cannot calculate point value"); return 0; }
+    double rawLot    = riskAmt / (slPoints * pointVal);
+    double minLot    = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+    double maxLot    = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+    double lotStep   = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+    double normLot   = MathFloor(rawLot / lotStep) * lotStep;
+    return NormalizeDouble(MathMax(minLot, MathMin(maxLot, normLot)), 2);
+}
+```
+
+### 5.5 ATR-Based Stop Loss
+```mql5
+double GetATRStop(int barShift = 1) {
+    double atrBuf[3];
+    ArraySetAsSeries(atrBuf, true);
+    if(CopyBuffer(h_ATR, 0, 0, 3, atrBuf) < 3) return 0;
+    return atrBuf[barShift] * InpATRMultiplier;
+}
+```
+
+### 5.6 Position Management — By Magic + Symbol (Always)
+```mql5
+int CountOpenPositions(ENUM_POSITION_TYPE type = -1) {
+    int count = 0;
+    for(int i = PositionsTotal() - 1; i >= 0; i--) {
+        ulong ticket = PositionGetTicket(i);
+        if(!PositionSelectByTicket(ticket)) continue;
+        if(PositionGetString(POSITION_SYMBOL)  != _Symbol)        continue;
+        if(PositionGetInteger(POSITION_MAGIC)  != InpMagicNumber)  continue;
+        if(type != -1 && PositionGetInteger(POSITION_TYPE) != type) continue;
+        count++;
+    }
+    return count;
+}
+```
+
+### 5.7 Spread Filter (Always Applied Pre-Entry)
+```mql5
+bool IsSpreadOK() {
+    long spread = SymbolInfoInteger(_Symbol, SYMBOL_SPREAD);
+    if(spread > InpMaxSpread) {
+        Print("[FILTER] Spread=", spread, " exceeds max=", InpMaxSpread);
+        return false;
+    }
+    return true;
+}
+```
+
+### 5.8 Session Time Filter (Overnight-Safe)
+```mql5
+bool IsInSession() {
+    MqlDateTime dt;
+    TimeToStruct(TimeGMT(), dt);
+    int nowMin   = dt.hour * 60 + dt.min;
+    int startMin = InpSessionStartHour * 60 + InpSessionStartMin;
+    int endMin   = InpSessionEndHour   * 60 + InpSessionEndMin;
+    if(startMin < endMin) return (nowMin >= startMin && nowMin < endMin);
+    return (nowMin >= startMin || nowMin < endMin);
+}
+```
+
+### 5.9 Break-Even Manager
+```mql5
+void ApplyBreakEven(ulong ticket) {
+    if(!PositionSelectByTicket(ticket)) return;
+    ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+    double openPx  = PositionGetDouble(POSITION_PRICE_OPEN);
+    double curSL   = PositionGetDouble(POSITION_SL);
+    double curTP   = PositionGetDouble(POSITION_TP);
+    double beTrigDist = InpBE_TriggerPips * _Point * 10;
+    double beOffset   = InpBE_OffsetPips  * _Point * 10;
+    double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+    double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+    if(pType == POSITION_TYPE_BUY) {
+        if(bid >= openPx + beTrigDist && curSL < openPx + beOffset) {
+            double newSL = NormalizeDouble(openPx + beOffset, _Digits);
+            c_Trade.PositionModify(ticket, newSL, curTP);
+            Print("[BE] BUY ticket ", ticket, " moved SL to ", newSL);
+        }
+    } else {
+        if(ask <= openPx - beTrigDist && curSL > openPx - beOffset) {
+            double newSL = NormalizeDouble(openPx - beOffset, _Digits);
+            c_Trade.PositionModify(ticket, newSL, curTP);
+            Print("[BE] SELL ticket ", ticket, " moved SL to ", newSL);
+        }
+    }
+}
+```
+
+### 5.10 ATR Trailing Stop
+```mql5
+void ApplyTrailingStop(ulong ticket) {
+    if(!PositionSelectByTicket(ticket)) return;
+    double atrBuf[3]; ArraySetAsSeries(atrBuf, true);
+    if(CopyBuffer(h_ATR, 0, 0, 3, atrBuf) < 3) return;
+    double trailDist = atrBuf[1] * InpTrailATRMult;
+    ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+    double curSL = PositionGetDouble(POSITION_SL);
+    double curTP = PositionGetDouble(POSITION_TP);
+    if(pType == POSITION_TYPE_BUY) {
+        double bid   = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+        double newSL = NormalizeDouble(bid - trailDist, _Digits);
+        if(newSL > curSL + _Point) c_Trade.PositionModify(ticket, newSL, curTP);
+    } else {
+        double ask   = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+        double newSL = NormalizeDouble(ask + trailDist, _Digits);
+        if(newSL < curSL - _Point || curSL == 0)
+            c_Trade.PositionModify(ticket, newSL, curTP);
+    }
+}
+```
+
+### 5.11 Partial Close
+```mql5
+void PartialClose(ulong ticket, double closeRatio) {
+    if(!PositionSelectByTicket(ticket)) return;
+    double currentVol = PositionGetDouble(POSITION_VOLUME);
+    double closeVol   = NormalizeDouble(currentVol * closeRatio, 2);
+    double minLot     = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+    double lotStep    = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+    closeVol = MathFloor(closeVol / lotStep) * lotStep;
+    if(closeVol < minLot) return;
+    c_Trade.PositionClosePartial(ticket, closeVol);
+    Print("[PARTIAL] Closed ", closeVol, " of ticket ", ticket);
+}
+```
+
+### 5.12 Trade Pre-Flight Check
+```mql5
+bool IsTradeAllowed() {
+    if(!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) { Print("[BLOCK] AutoTrading disabled"); return false; }
+    if(!MQLInfoInteger(MQL_TRADE_ALLOWED))           { Print("[BLOCK] EA AutoTrading off");  return false; }
+    if(!AccountInfoInteger(ACCOUNT_TRADE_ALLOWED))   { Print("[BLOCK] Account locked");      return false; }
+    if(!AccountInfoInteger(ACCOUNT_TRADE_EXPERT))    { Print("[BLOCK] No expert trading");   return false; }
+    if(SymbolInfoInteger(_Symbol,SYMBOL_TRADE_MODE) != SYMBOL_TRADE_MODE_FULL)
+                                                     { Print("[BLOCK] Symbol restricted");   return false; }
+    return true;
+}
+```
+
+---
+
+## Section 6 — Strategy Frameworks {#section-6}
+
+### 6.1 CRT — Candle Range Theory
+```mql5
+// Reference candle: identify H/L range (typically prev day or session candle)
+// Equilibrium: (High + Low) / 2
+// Standard Deviations: Eq +/- (Range * 1.0), Eq +/- (Range * 2.0)
+// Manipulation phase: wick sweep of range extremes -> entry trigger
+// Displacement candle: strong close beyond mid confirms direction
+// SL: below/above full candle range + buffer
+// TP: 1.5x-2x range extension or opposing SD level
+
+double GetCRTEquilibrium(int refBar) {
+    double hi = iHigh(_Symbol, PERIOD_CURRENT, refBar);
+    double lo = iLow(_Symbol,  PERIOD_CURRENT, refBar);
+    return (hi + lo) / 2.0;
+}
+
+double GetCRTStdDev(int refBar, double multiple) {
+    double range = iHigh(_Symbol, PERIOD_CURRENT, refBar)
+                 - iLow(_Symbol,  PERIOD_CURRENT, refBar);
+    return GetCRTEquilibrium(refBar) + (range * multiple);
+}
+```
+
+### 6.2 SMC — Smart Money Concepts
+```mql5
+// BOS Detection
+bool IsBullishBOS(int lookback) {
+    double prevSwingHigh = 0;
+    for(int i = lookback; i >= 2; i--) {
+        double h = iHigh(_Symbol, PERIOD_CURRENT, i);
+        if(h > iHigh(_Symbol, PERIOD_CURRENT, i+1) &&
+           h > iHigh(_Symbol, PERIOD_CURRENT, i-1))
+            prevSwingHigh = MathMax(prevSwingHigh, h);
+    }
+    return (iClose(_Symbol, PERIOD_CURRENT, 1) > prevSwingHigh);
+}
+
+// FVG Detection — 3-candle pattern
+bool IsBullishFVG(int idx) {
+    return (iLow(_Symbol, PERIOD_CURRENT, idx) >
+            iHigh(_Symbol, PERIOD_CURRENT, idx+2));
+}
+bool IsBearishFVG(int idx) {
+    return (iHigh(_Symbol, PERIOD_CURRENT, idx) <
+            iLow(_Symbol, PERIOD_CURRENT, idx+2));
+}
+
+// Order Block Detection — last bearish candle before bullish BOS
+int FindBullishOB(int bosBar, int lookback) {
+    for(int i = bosBar + 1; i <= bosBar + lookback; i++) {
+        if(iClose(_Symbol, PERIOD_CURRENT, i) <
+           iOpen(_Symbol,  PERIOD_CURRENT, i))
+            return i;
+    }
+    return -1;
+}
+```
+
+### 6.3 ICT — Inner Circle Trader
+```mql5
+bool IsLondonKZ()       { return IsTimeInRange(2,  0,  5,  0); }
+bool IsNYAMKZ()         { return IsTimeInRange(7,  0, 10,  0); }
+bool IsSilverBulletNY() { return IsTimeInRange(10, 0, 11,  0); }
+
+bool IsTimeInRange(int startH, int startM, int endH, int endM) {
+    MqlDateTime dt; TimeToStruct(TimeGMT(), dt);
+    int now   = dt.hour * 60 + dt.min;
+    int start = startH  * 60 + startM;
+    int end   = endH    * 60 + endM;
+    return (now >= start && now < end);
+}
+
+// Liquidity Pool Detection (Equal Highs/Lows)
+bool IsEqualHighs(int bar1, int bar2, double tolerancePts = 10) {
+    return (MathAbs(iHigh(_Symbol, PERIOD_CURRENT, bar1) -
+                    iHigh(_Symbol, PERIOD_CURRENT, bar2))
+            < tolerancePts * _Point);
+}
+```
+
+### 6.4 Asian Range Breakout
+```mql5
+double g_AsianHigh = 0, g_AsianLow = DBL_MAX;
+
+void CalcAsianRange() {
+    g_AsianHigh = 0; g_AsianLow = DBL_MAX;
+    int bars = Bars(_Symbol, PERIOD_M5);
+    for(int i = 0; i < MathMin(bars, 24); i++) {
+        MqlDateTime dt; TimeToStruct(iTime(_Symbol, PERIOD_M5, i), dt);
+        if(dt.hour >= 0 && dt.hour < 2) {
+            g_AsianHigh = MathMax(g_AsianHigh, iHigh(_Symbol, PERIOD_M5, i));
+            g_AsianLow  = MathMin(g_AsianLow,  iLow(_Symbol,  PERIOD_M5, i));
+        }
+    }
+}
+```
+
+### 6.5 Multi-Timeframe Confluence (HTF Bias)
+```mql5
+ENUM_TIMEFRAMES g_HTF   = PERIOD_H4;
+int h_HTF_EMA50, h_HTF_EMA200;
+
+// In OnInit:
+// h_HTF_EMA50  = iMA(_Symbol, g_HTF, 50,  0, MODE_EMA, PRICE_CLOSE);
+// h_HTF_EMA200 = iMA(_Symbol, g_HTF, 200, 0, MODE_EMA, PRICE_CLOSE);
+
+bool IsBullishHTFBias() {
+    double ema50[2], ema200[2];
+    ArraySetAsSeries(ema50,  true);
+    ArraySetAsSeries(ema200, true);
+    if(CopyBuffer(h_HTF_EMA50,  0, 0, 2, ema50)  < 2) return false;
+    if(CopyBuffer(h_HTF_EMA200, 0, 0, 2, ema200) < 2) return false;
+    double price = iClose(_Symbol, g_HTF, 1);
+    return (price > ema50[1] && ema50[1] > ema200[1]);
+}
+```
+
+---
+
+## Section 7 — Advanced Classes (MTF, MM, Grid, Martingale) {#section-7}
+
+### 7.1 Multi-Timeframe Analysis Class
 
 ```mql5
-//+------------------------------------------------------------------+
-//| Multi-Timeframe Analysis Class                                     |
-//+------------------------------------------------------------------+
 class CMultiTimeframeAnalysis
 {
 private:
-   string            m_symbol;
-   ENUM_TIMEFRAMES   m_tf1;  // Higher timeframe (trend)
-   ENUM_TIMEFRAMES   m_tf2;  // Medium timeframe (filter)
-   ENUM_TIMEFRAMES   m_tf3;  // Lower timeframe (entry)
-   
-   int               m_handleMA_TF1;
-   int               m_handleMA_TF2;
-   int               m_handleMA_TF3;
-   
-   double            m_bufferMA_TF1[];
-   double            m_bufferMA_TF2[];
-   double            m_bufferMA_TF3[];
+    string            m_symbol;
+    ENUM_TIMEFRAMES   m_tf1;
+    ENUM_TIMEFRAMES   m_tf2;
+    ENUM_TIMEFRAMES   m_tf3;
+    int               m_handleMA_TF1;
+    int               m_handleMA_TF2;
+    int               m_handleMA_TF3;
+    double            m_bufferMA_TF1[];
+    double            m_bufferMA_TF2[];
+    double            m_bufferMA_TF3[];
 
 public:
-   CMultiTimeframeAnalysis(string symbol, ENUM_TIMEFRAMES tf1, ENUM_TIMEFRAMES tf2, ENUM_TIMEFRAMES tf3)
-   {
-      m_symbol = symbol;
-      m_tf1 = tf1;
-      m_tf2 = tf2;
-      m_tf3 = tf3;
-      
-      // Initialize indicators for each timeframe
-      m_handleMA_TF1 = iMA(m_symbol, m_tf1, 50, 0, MODE_EMA, PRICE_CLOSE);
-      m_handleMA_TF2 = iMA(m_symbol, m_tf2, 50, 0, MODE_EMA, PRICE_CLOSE);
-      m_handleMA_TF3 = iMA(m_symbol, m_tf3, 20, 0, MODE_EMA, PRICE_CLOSE);
-      
-      ArraySetAsSeries(m_bufferMA_TF1, true);
-      ArraySetAsSeries(m_bufferMA_TF2, true);
-      ArraySetAsSeries(m_bufferMA_TF3, true);
-   }
-   
-   ~CMultiTimeframeAnalysis()
-   {
-      if(m_handleMA_TF1 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF1);
-      if(m_handleMA_TF2 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF2);
-      if(m_handleMA_TF3 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF3);
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get trend direction from higher timeframe                         |
-   //+------------------------------------------------------------------+
-   int GetTrendDirection()
-   {
-      CopyBuffer(m_handleMA_TF1, 0, 0, 3, m_bufferMA_TF1);
-      
-      double close0 = iClose(m_symbol, m_tf1, 0);
-      double close1 = iClose(m_symbol, m_tf1, 1);
-      double ma0 = m_bufferMA_TF1[0];
-      double ma1 = m_bufferMA_TF1[1];
-      
-      // Strong uptrend
-      if(close0 > ma0 && close1 > ma1 && ma0 > ma1)
-         return 1;
-      
-      // Strong downtrend
-      if(close0 < ma0 && close1 < ma1 && ma0 < ma1)
-         return -1;
-      
-      // No clear trend
-      return 0;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if all timeframes align for buy                             |
-   //+------------------------------------------------------------------+
-   bool IsBuySignal()
-   {
-      // Update all buffers
-      CopyBuffer(m_handleMA_TF1, 0, 0, 2, m_bufferMA_TF1);
-      CopyBuffer(m_handleMA_TF2, 0, 0, 2, m_bufferMA_TF2);
-      CopyBuffer(m_handleMA_TF3, 0, 0, 3, m_bufferMA_TF3);
-      
-      // TF1: Higher timeframe trend must be up
-      double close_tf1 = iClose(m_symbol, m_tf1, 0);
-      if(close_tf1 <= m_bufferMA_TF1[0]) return false;
-      
-      // TF2: Medium timeframe must confirm
-      double close_tf2 = iClose(m_symbol, m_tf2, 0);
-      if(close_tf2 <= m_bufferMA_TF2[0]) return false;
-      
-      // TF3: Entry timeframe - look for crossover
-      double close_tf3_0 = iClose(m_symbol, m_tf3, 0);
-      double close_tf3_1 = iClose(m_symbol, m_tf3, 1);
-      
-      // Bullish crossover on entry timeframe
-      if(close_tf3_1 <= m_bufferMA_TF3[1] && close_tf3_0 > m_bufferMA_TF3[0])
-         return true;
-      
-      return false;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if all timeframes align for sell                            |
-   //+------------------------------------------------------------------+
-   bool IsSellSignal()
-   {
-      // Update all buffers
-      CopyBuffer(m_handleMA_TF1, 0, 0, 2, m_bufferMA_TF1);
-      CopyBuffer(m_handleMA_TF2, 0, 0, 2, m_bufferMA_TF2);
-      CopyBuffer(m_handleMA_TF3, 0, 0, 3, m_bufferMA_TF3);
-      
-      // TF1: Higher timeframe trend must be down
-      double close_tf1 = iClose(m_symbol, m_tf1, 0);
-      if(close_tf1 >= m_bufferMA_TF1[0]) return false;
-      
-      // TF2: Medium timeframe must confirm
-      double close_tf2 = iClose(m_symbol, m_tf2, 0);
-      if(close_tf2 >= m_bufferMA_TF2[0]) return false;
-      
-      // TF3: Entry timeframe - look for crossover
-      double close_tf3_0 = iClose(m_symbol, m_tf3, 0);
-      double close_tf3_1 = iClose(m_symbol, m_tf3, 1);
-      
-      // Bearish crossover on entry timeframe
-      if(close_tf3_1 >= m_bufferMA_TF3[1] && close_tf3_0 < m_bufferMA_TF3[0])
-         return true;
-      
-      return false;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get strength of alignment (0-100)                                 |
-   //+------------------------------------------------------------------+
-   double GetAlignmentStrength()
-   {
-      CopyBuffer(m_handleMA_TF1, 0, 0, 1, m_bufferMA_TF1);
-      CopyBuffer(m_handleMA_TF2, 0, 0, 1, m_bufferMA_TF2);
-      CopyBuffer(m_handleMA_TF3, 0, 0, 1, m_bufferMA_TF3);
-      
-      double close_tf1 = iClose(m_symbol, m_tf1, 0);
-      double close_tf2 = iClose(m_symbol, m_tf2, 0);
-      double close_tf3 = iClose(m_symbol, m_tf3, 0);
-      
-      double dist1 = MathAbs(close_tf1 - m_bufferMA_TF1[0]) / m_bufferMA_TF1[0] * 100;
-      double dist2 = MathAbs(close_tf2 - m_bufferMA_TF2[0]) / m_bufferMA_TF2[0] * 100;
-      double dist3 = MathAbs(close_tf3 - m_bufferMA_TF3[0]) / m_bufferMA_TF3[0] * 100;
-      
-      // Average distance from MA across timeframes
-      double avgDistance = (dist1 + dist2 + dist3) / 3.0;
-      
-      // Convert to strength (closer = stronger)
-      double strength = 100 - MathMin(avgDistance * 10, 100);
-      
-      return strength;
-   }
+    CMultiTimeframeAnalysis(string symbol, ENUM_TIMEFRAMES tf1,
+                             ENUM_TIMEFRAMES tf2, ENUM_TIMEFRAMES tf3) {
+        m_symbol = symbol; m_tf1 = tf1; m_tf2 = tf2; m_tf3 = tf3;
+        m_handleMA_TF1 = iMA(m_symbol, m_tf1, 50, 0, MODE_EMA, PRICE_CLOSE);
+        m_handleMA_TF2 = iMA(m_symbol, m_tf2, 50, 0, MODE_EMA, PRICE_CLOSE);
+        m_handleMA_TF3 = iMA(m_symbol, m_tf3, 20, 0, MODE_EMA, PRICE_CLOSE);
+        ArraySetAsSeries(m_bufferMA_TF1, true);
+        ArraySetAsSeries(m_bufferMA_TF2, true);
+        ArraySetAsSeries(m_bufferMA_TF3, true);
+    }
+
+    ~CMultiTimeframeAnalysis() {
+        if(m_handleMA_TF1 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF1);
+        if(m_handleMA_TF2 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF2);
+        if(m_handleMA_TF3 != INVALID_HANDLE) IndicatorRelease(m_handleMA_TF3);
+    }
+
+    int GetTrendDirection() {
+        CopyBuffer(m_handleMA_TF1, 0, 0, 3, m_bufferMA_TF1);
+        double close0 = iClose(m_symbol, m_tf1, 0);
+        double close1 = iClose(m_symbol, m_tf1, 1);
+        if(close0 > m_bufferMA_TF1[0] && close1 > m_bufferMA_TF1[1] &&
+           m_bufferMA_TF1[0] > m_bufferMA_TF1[1]) return 1;
+        if(close0 < m_bufferMA_TF1[0] && close1 < m_bufferMA_TF1[1] &&
+           m_bufferMA_TF1[0] < m_bufferMA_TF1[1]) return -1;
+        return 0;
+    }
+
+    bool IsBuySignal() {
+        CopyBuffer(m_handleMA_TF1, 0, 0, 2, m_bufferMA_TF1);
+        CopyBuffer(m_handleMA_TF2, 0, 0, 2, m_bufferMA_TF2);
+        CopyBuffer(m_handleMA_TF3, 0, 0, 3, m_bufferMA_TF3);
+        if(iClose(m_symbol, m_tf1, 0) <= m_bufferMA_TF1[0]) return false;
+        if(iClose(m_symbol, m_tf2, 0) <= m_bufferMA_TF2[0]) return false;
+        return (iClose(m_symbol, m_tf3, 1) <= m_bufferMA_TF3[1] &&
+                iClose(m_symbol, m_tf3, 0) >  m_bufferMA_TF3[0]);
+    }
+
+    bool IsSellSignal() {
+        CopyBuffer(m_handleMA_TF1, 0, 0, 2, m_bufferMA_TF1);
+        CopyBuffer(m_handleMA_TF2, 0, 0, 2, m_bufferMA_TF2);
+        CopyBuffer(m_handleMA_TF3, 0, 0, 3, m_bufferMA_TF3);
+        if(iClose(m_symbol, m_tf1, 0) >= m_bufferMA_TF1[0]) return false;
+        if(iClose(m_symbol, m_tf2, 0) >= m_bufferMA_TF2[0]) return false;
+        return (iClose(m_symbol, m_tf3, 1) >= m_bufferMA_TF3[1] &&
+                iClose(m_symbol, m_tf3, 0) <  m_bufferMA_TF3[0]);
+    }
 };
 ```
 
-**How to Use MTF in Your EA:**
+**Usage:**
 ```mql5
-// Global variables
 CMultiTimeframeAnalysis *mtf;
 
-// In OnInit()
-int OnInit()
-{
-   mtf = new CMultiTimeframeAnalysis(_Symbol, PERIOD_H4, PERIOD_H1, PERIOD_M15);
-   return INIT_SUCCEEDED;
-}
+// OnInit:
+mtf = new CMultiTimeframeAnalysis(_Symbol, PERIOD_H4, PERIOD_H1, PERIOD_M15);
 
-// In OnDeinit()
-void OnDeinit(const int reason)
-{
-   if(mtf != NULL)
-   {
-      delete mtf;
-      mtf = NULL;
-   }
-}
+// OnDeinit:
+if(mtf != NULL) { delete mtf; mtf = NULL; }
 
-// In OnTick() or CheckTradeSignals()
-void CheckTradeSignals()
-{
-   if(mtf->IsBuySignal())
-   {
-      double strength = mtf->GetAlignmentStrength();
-      if(strength > 70) // Only trade if alignment is strong
-      {
-         OpenBuyTrade();
-      }
-   }
-   
-   if(mtf->IsSellSignal())
-   {
-      double strength = mtf->GetAlignmentStrength();
-      if(strength > 70)
-      {
-         OpenSellTrade();
-      }
-   }
-}
+// OnTick:
+if(mtf.IsBuySignal())  OpenBuyTrade();
+if(mtf.IsSellSignal()) OpenSellTrade();
 ```
 
 ---
 
-### 2. ADVANCED MONEY MANAGEMENT
-
-Money management yang proper adalah kunci survival. Ini bukan tentang profit maksimal, tapi tentang TIDAK BANGKRUT.
+### 7.2 Advanced Money Management Class
 
 ```mql5
-//+------------------------------------------------------------------+
-//| Advanced Money Management Class                                    |
-//+------------------------------------------------------------------+
 class CMoneyManagement
 {
 private:
-   double            m_initialBalance;
-   double            m_maxRiskPerTrade;        // % of balance
-   double            m_maxDailyRisk;           // % of balance
-   double            m_maxDrawdown;            // % of balance
-   double            m_dailyRiskUsed;
-   
-   double            m_kellyFraction;          // Kelly Criterion multiplier
-   bool              m_useKelly;
-   
-   int               m_consecutiveLosses;
-   int               m_consecutiveWins;
-   double            m_winRate;
-   double            m_avgWin;
-   double            m_avgLoss;
+    double m_initialBalance, m_maxRiskPerTrade, m_maxDailyRisk;
+    double m_maxDrawdown, m_dailyRiskUsed;
+    double m_kellyFraction;
+    bool   m_useKelly;
+    int    m_consecutiveLosses, m_consecutiveWins;
+    double m_winRate, m_avgWin, m_avgLoss;
 
 public:
-   CMoneyManagement(double initialBalance, double riskPerTrade, double dailyRisk, double maxDD)
-   {
-      m_initialBalance = initialBalance;
-      m_maxRiskPerTrade = riskPerTrade;
-      m_maxDailyRisk = dailyRisk;
-      m_maxDrawdown = maxDD;
-      m_dailyRiskUsed = 0;
-      
-      m_kellyFraction = 0.25; // Conservative Kelly (1/4 of full Kelly)
-      m_useKelly = false;
-      
-      m_consecutiveLosses = 0;
-      m_consecutiveWins = 0;
-      m_winRate = 0.5; // Start with 50% assumption
-      m_avgWin = 0;
-      m_avgLoss = 0;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Calculate position size based on fixed risk                       |
-   //+------------------------------------------------------------------+
-   double CalculatePositionSize(string symbol, double stopLossPoints)
-   {
-      CAccountInfo account;
-      double balance = account.Balance();
-      
-      // Check if we've exceeded daily risk limit
-      if(m_dailyRiskUsed >= m_maxDailyRisk)
-      {
-         Print("Daily risk limit reached: ", m_dailyRiskUsed, "%");
-         return 0;
-      }
-      
-      // Calculate risk amount
-      double riskPercent = GetAdjustedRiskPercent();
-      double riskAmount = balance * (riskPercent / 100.0);
-      
-      // Calculate lot size
-      double tickValue = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE);
-      double tickSize = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
-      double point = SymbolInfoDouble(symbol, SYMBOL_POINT);
-      
-      if(stopLossPoints <= 0) return 0;
-      
-      double moneyPerPoint = (tickValue / tickSize) * point;
-      double lotSize = riskAmount / (stopLossPoints * moneyPerPoint);
-      
-      // Normalize lot size
-      lotSize = NormalizeLotSize(symbol, lotSize);
-      
-      // Update daily risk used
-      m_dailyRiskUsed += riskPercent;
-      
-      return lotSize;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get adjusted risk percent based on performance                    |
-   //+------------------------------------------------------------------+
-   double GetAdjustedRiskPercent()
-   {
-      double baseRisk = m_maxRiskPerTrade;
-      
-      // Reduce risk after consecutive losses (check highest threshold first)
-      if(m_consecutiveLosses >= 5)
-      {
-         baseRisk *= 0.25; // Cut to 1/4
-         Print("Risk severely reduced: ", m_consecutiveLosses, " losses");
-      }
-      else if(m_consecutiveLosses >= 3)
-      {
-         baseRisk *= 0.5; // Cut risk in half
-         Print("Risk reduced due to consecutive losses: ", m_consecutiveLosses);
-      }
-      
-      // Increase risk slightly after consecutive wins (but cap it)
-      if(m_consecutiveWins >= 3)
-      {
-         baseRisk *= 1.2; // Increase 20%
-         baseRisk = MathMin(baseRisk, m_maxRiskPerTrade * 1.5); // Max 1.5x
-      }
-      
-      // Use Kelly Criterion if enabled and we have enough data
-      if(m_useKelly && m_avgWin > 0 && m_avgLoss > 0)
-      {
-         double kellyRisk = CalculateKellyRisk();
-         baseRisk = MathMin(baseRisk, kellyRisk);
-      }
-      
-      return baseRisk;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Calculate Kelly Criterion risk                                    |
-   //+------------------------------------------------------------------+
-   double CalculateKellyRisk()
-   {
-      // Kelly % = W - [(1-W) / R]
-      // W = Win rate
-      // R = Win/Loss ratio
-      
-      if(m_avgLoss == 0) return m_maxRiskPerTrade;
-      
-      double winLossRatio = m_avgWin / m_avgLoss;
-      double kellyPercent = m_winRate - ((1 - m_winRate) / winLossRatio);
-      
-      // Apply Kelly fraction for safety (never use full Kelly!)
-      kellyPercent *= m_kellyFraction;
-      
-      // Cap at max risk per trade
-      kellyPercent = MathMax(kellyPercent, 0.1); // Minimum 0.1%
-      kellyPercent = MathMin(kellyPercent, m_maxRiskPerTrade);
-      
-      return kellyPercent;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Normalize lot size according to broker requirements               |
-   //+------------------------------------------------------------------+
-   double NormalizeLotSize(string symbol, double lotSize)
-   {
-      double minLot = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
-      double maxLot = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX);
-      double lotStep = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
-      
-      lotSize = MathFloor(lotSize / lotStep) * lotStep;
-      lotSize = MathMax(lotSize, minLot);
-      lotSize = MathMin(lotSize, maxLot);
-      
-      return lotSize;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Update statistics after trade close                               |
-   //+------------------------------------------------------------------+
-   void UpdateStats(double profit)
-   {
-      if(profit > 0)
-      {
-         m_consecutiveWins++;
-         m_consecutiveLosses = 0;
-         
-         // Update avg win
-         if(m_avgWin == 0)
-            m_avgWin = profit;
-         else
-            m_avgWin = (m_avgWin * 0.8) + (profit * 0.2); // EMA
-      }
-      else if(profit < 0)
-      {
-         m_consecutiveLosses++;
-         m_consecutiveWins = 0;
-         
-         // Update avg loss
-         if(m_avgLoss == 0)
-            m_avgLoss = MathAbs(profit);
-         else
-            m_avgLoss = (m_avgLoss * 0.8) + (MathAbs(profit) * 0.2); // EMA
-      }
-      
-      // Update win rate (simple moving average)
-      // You should track this more accurately with total trades
-      if(profit > 0)
-         m_winRate = (m_winRate * 0.9) + (1.0 * 0.1);
-      else if(profit < 0)
-         m_winRate = (m_winRate * 0.9) + (0.0 * 0.1);
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Reset daily risk counter                                          |
-   //+------------------------------------------------------------------+
-   void ResetDailyRisk()
-   {
-      m_dailyRiskUsed = 0;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if we can take new trade                                    |
-   //+------------------------------------------------------------------+
-   bool CanTakeNewTrade()
-   {
-      CAccountInfo account;
-      
-      // Check daily risk limit
-      if(m_dailyRiskUsed >= m_maxDailyRisk)
-         return false;
-      
-      // Check drawdown limit
-      double balance = account.Balance();
-      double equity = account.Equity();
-      double currentDD = ((balance - equity) / balance) * 100;
-      
-      if(currentDD >= m_maxDrawdown)
-      {
-         Print("Max drawdown reached: ", currentDD, "%");
-         return false;
-      }
-      
-      // Stop trading after 5 consecutive losses
-      if(m_consecutiveLosses >= 5)
-      {
-         Print("Too many consecutive losses. Pausing trading.");
-         return false;
-      }
-      
-      return true;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Enable Kelly Criterion (use with caution!)                        |
-   //+------------------------------------------------------------------+
-   void EnableKelly(bool enable, double fraction = 0.25)
-   {
-      m_useKelly = enable;
-      m_kellyFraction = fraction;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get current statistics                                             |
-   //+------------------------------------------------------------------+
-   string GetStats()
-   {
-      string stats = StringFormat(
-         "MM Stats: Wins=%d, Losses=%d, WinRate=%.2f%%, AvgWin=%.2f, AvgLoss=%.2f, DailyRisk=%.2f%%",
-         m_consecutiveWins, m_consecutiveLosses, m_winRate * 100,
-         m_avgWin, m_avgLoss, m_dailyRiskUsed
-      );
-      return stats;
-   }
+    CMoneyManagement(double initialBalance, double riskPerTrade,
+                     double dailyRisk, double maxDD) {
+        m_initialBalance   = initialBalance;
+        m_maxRiskPerTrade  = riskPerTrade;
+        m_maxDailyRisk     = dailyRisk;
+        m_maxDrawdown      = maxDD;
+        m_dailyRiskUsed    = 0;
+        m_kellyFraction    = 0.25;
+        m_useKelly         = false;
+        m_consecutiveLosses = 0;
+        m_consecutiveWins  = 0;
+        m_winRate          = 0.5;
+        m_avgWin = m_avgLoss = 0;
+    }
+
+    double CalculatePositionSize(string symbol, double stopLossPoints) {
+        CAccountInfo account;
+        double balance = account.Balance();
+        if(m_dailyRiskUsed >= m_maxDailyRisk) {
+            Print("[MM] Daily risk limit reached: ", m_dailyRiskUsed, "%");
+            return 0;
+        }
+        double riskPercent = GetAdjustedRiskPercent();
+        double riskAmount  = balance * (riskPercent / 100.0);
+        double tickValue   = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE);
+        double tickSize    = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+        double point       = SymbolInfoDouble(symbol, SYMBOL_POINT);
+        if(stopLossPoints <= 0 || tickSize == 0) return 0;
+        double moneyPerPoint = (tickValue / tickSize) * point;
+        double lotSize = riskAmount / (stopLossPoints * moneyPerPoint);
+        m_dailyRiskUsed += riskPercent;
+        return NormalizeLotSize(symbol, lotSize);
+    }
+
+    double GetAdjustedRiskPercent() {
+        double baseRisk = m_maxRiskPerTrade;
+        if(m_consecutiveLosses >= 5)      baseRisk *= 0.25;
+        else if(m_consecutiveLosses >= 3) baseRisk *= 0.5;
+        if(m_consecutiveWins >= 3)
+            baseRisk = MathMin(baseRisk * 1.2, m_maxRiskPerTrade * 1.5);
+        if(m_useKelly && m_avgWin > 0 && m_avgLoss > 0)
+            baseRisk = MathMin(baseRisk, CalculateKellyRisk());
+        return baseRisk;
+    }
+
+    double CalculateKellyRisk() {
+        if(m_avgLoss == 0) return m_maxRiskPerTrade;
+        double ratio = m_avgWin / m_avgLoss;
+        double kelly = (m_winRate - ((1 - m_winRate) / ratio)) * m_kellyFraction;
+        return MathMax(0.1, MathMin(kelly, m_maxRiskPerTrade));
+    }
+
+    double NormalizeLotSize(string symbol, double lotSize) {
+        double minLot  = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
+        double maxLot  = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MAX);
+        double lotStep = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
+        return MathMax(minLot, MathMin(maxLot, MathFloor(lotSize / lotStep) * lotStep));
+    }
+
+    void UpdateStats(double profit) {
+        if(profit > 0) {
+            m_consecutiveWins++; m_consecutiveLosses = 0;
+            m_avgWin  = (m_avgWin  == 0) ? profit : m_avgWin  * 0.8 + profit * 0.2;
+            m_winRate = m_winRate * 0.9 + 0.1;
+        } else if(profit < 0) {
+            m_consecutiveLosses++; m_consecutiveWins = 0;
+            m_avgLoss = (m_avgLoss == 0) ? MathAbs(profit)
+                                         : m_avgLoss * 0.8 + MathAbs(profit) * 0.2;
+            m_winRate = m_winRate * 0.9;
+        }
+    }
+
+    bool CanTakeNewTrade() {
+        CAccountInfo account;
+        if(m_dailyRiskUsed >= m_maxDailyRisk)  return false;
+        if(m_consecutiveLosses >= 5)            return false;
+        double balance = account.Balance();
+        double equity  = account.Equity();
+        double dd = (balance > 0) ? ((balance - equity) / balance * 100.0) : 0;
+        if(dd >= m_maxDrawdown) { Print("[MM] Max DD reached: ", dd, "%"); return false; }
+        return true;
+    }
+
+    void ResetDailyRisk()  { m_dailyRiskUsed = 0; }
+    void EnableKelly(bool e, double f = 0.25) { m_useKelly = e; m_kellyFraction = f; }
+
+    string GetStats() {
+        return StringFormat("MM: Wins=%d Losses=%d WinRate=%.1f%% AvgW=%.2f AvgL=%.2f DailyRisk=%.2f%%",
+            m_consecutiveWins, m_consecutiveLosses, m_winRate * 100,
+            m_avgWin, m_avgLoss, m_dailyRiskUsed);
+    }
 };
-```
-
-**How to Use Money Management:**
-```mql5
-// Global variables
-CMoneyManagement *mm;
-
-// In OnInit()
-int OnInit()
-{
-   mm = new CMoneyManagement(
-      account.Balance(),    // Initial balance
-      1.0,                  // Max risk per trade: 1%
-      5.0,                  // Max daily risk: 5%
-      20.0                  // Max drawdown: 20%
-   );
-   
-   // Optional: Enable Kelly Criterion
-   mm->EnableKelly(true, 0.25); // Use 1/4 Kelly
-   
-   return INIT_SUCCEEDED;
-}
-
-// In OnDeinit()
-void OnDeinit(const int reason)
-{
-   if(mm != NULL)
-   {
-      delete mm;
-      mm = NULL;
-   }
-}
-
-// Before opening trade
-void CheckTradeSignals()
-{
-   if(mm->CanTakeNewTrade())
-   {
-      double stopLossPoints = 50; // Your SL in points
-      double lotSize = mm->CalculatePositionSize(_Symbol, stopLossPoints);
-      
-      if(lotSize > 0)
-      {
-         // Open trade with calculated lot size
-      }
-   }
-}
-
-// After trade closes (in OnTradeTransaction or check history)
-double profit = CalculateTradeProfit(ticket); // Your function
-mm->UpdateStats(profit);
-
-// Reset daily at start of new day
-if(IsNewDay())
-{
-   mm->ResetDailyRisk();
-}
 ```
 
 ---
 
-### 3. GRID TRADING SYSTEM (SAFE VERSION)
-
-Grid trading can be profitable but is also VERY DANGEROUS without protection. This is a safer grid implementation.
+### 7.3 Safe Grid System
 
 ```mql5
-//+------------------------------------------------------------------+
-//| Safe Grid Trading System                                           |
-//+------------------------------------------------------------------+
 class CSafeGridSystem
 {
 private:
-   string            m_symbol;
-   int               m_magicNumber;
-   
-   double            m_gridSize;              // Distance between grid levels (points)
-   int               m_maxGridLevels;         // Maximum number of grid levels
-   double            m_lotMultiplier;         // Lot multiplier for each level (1.0 = no multiplier)
-   double            m_baseLot;               // Starting lot size
-   
-   double            m_maxDrawdownPercent;    // Max allowed drawdown before stopping
-   double            m_profitTarget;          // Close all at this profit
-   
-   bool              m_isActive;
-   double            m_firstOrderPrice;
-   int               m_currentLevel;
-   double            m_totalVolume;
-   
-   CTrade            trade;
-   CPositionInfo     position;
+    string  m_symbol;
+    int     m_magicNumber;
+    double  m_gridSize, m_baseLot, m_lotMultiplier;
+    int     m_maxGridLevels;
+    double  m_maxDrawdownPercent, m_profitTarget;
+    bool    m_isActive;
+    double  m_firstOrderPrice, m_totalVolume;
+    int     m_currentLevel;
+    CTrade  trade;
+    CPositionInfo position;
 
 public:
-   CSafeGridSystem(string symbol, int magic, double gridSize, int maxLevels, double baseLot)
-   {
-      m_symbol = symbol;
-      m_magicNumber = magic;
-      m_gridSize = gridSize;
-      m_maxGridLevels = maxLevels;
-      m_baseLot = baseLot;
-      m_lotMultiplier = 1.0; // Default: no multiplier (safer)
-      
-      m_maxDrawdownPercent = 15.0; // Stop if drawdown > 15%
-      m_profitTarget = 100.0; // Close all at $100 profit
-      
-      m_isActive = false;
-      m_firstOrderPrice = 0;
-      m_currentLevel = 0;
-      m_totalVolume = 0;
-      
-      trade.SetExpertMagicNumber(magic);
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Initialize grid from first order                                  |
-   //+------------------------------------------------------------------+
-   void InitializeGrid(bool isBuy, double price)
-   {
-      m_isActive = true;
-      m_firstOrderPrice = price;
-      m_currentLevel = 1;
-      m_totalVolume = m_baseLot;
-      
-      Print("Grid initialized at ", price, " Direction: ", (isBuy ? "BUY" : "SELL"));
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if should add grid level                                    |
-   //+------------------------------------------------------------------+
-   bool ShouldAddGridLevel()
-   {
-      if(!m_isActive) return false;
-      if(m_currentLevel >= m_maxGridLevels) return false;
-      
-      // Check drawdown limit
-      if(!CheckDrawdownLimit()) return false;
-      
-      // Get first position direction
-      bool isFirstBuy = GetFirstPositionType();
-      double currentPrice = isFirstBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK) : 
-                                         SymbolInfoDouble(m_symbol, SYMBOL_BID);
-      double point = SymbolInfoDouble(m_symbol, SYMBOL_POINT);
-      
-      // Calculate distance from first order
-      double distance = 0;
-      if(isFirstBuy)
-         distance = (m_firstOrderPrice - currentPrice) / point;
-      else
-         distance = (currentPrice - m_firstOrderPrice) / point;
-      
-      // Check if price has moved enough for next grid level
-      int requiredDistance = (int)(m_gridSize * m_currentLevel);
-      if(distance >= requiredDistance)
-      {
-         return true;
-      }
-      
-      return false;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Add new grid level                                                |
-   //+------------------------------------------------------------------+
-   void AddGridLevel()
-   {
-      bool isFirstBuy = GetFirstPositionType();
-      double currentPrice = isFirstBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK) : 
-                                         SymbolInfoDouble(m_symbol, SYMBOL_BID);
-      
-      // Calculate lot size for this level
-      double lotSize = m_baseLot * MathPow(m_lotMultiplier, m_currentLevel);
-      lotSize = NormalizeLotSize(lotSize);
-      
-      // Open order
-      bool success = false;
-      if(isFirstBuy)
-         success = trade.Buy(lotSize, m_symbol, currentPrice, 0, 0, "Grid Level " + IntegerToString(m_currentLevel + 1));
-      else
-         success = trade.Sell(lotSize, m_symbol, currentPrice, 0, 0, "Grid Level " + IntegerToString(m_currentLevel + 1));
-      
-      if(success)
-      {
-         m_currentLevel++;
-         m_totalVolume += lotSize;
-         Print("Grid level ", m_currentLevel, " added at ", currentPrice, " Lot: ", lotSize);
-      }
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if profit target reached                                    |
-   //+------------------------------------------------------------------+
-   bool IsProfitTargetReached()
-   {
-      double totalProfit = 0;
-      
-      for(int i = 0; i < PositionsTotal(); i++)
-      {
-         if(position.SelectByIndex(i))
-         {
-            if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
-            {
-               totalProfit += position.Profit() + position.Swap() + position.Commission();
-            }
-         }
-      }
-      
-      if(totalProfit >= m_profitTarget)
-      {
-         Print("Grid profit target reached: $", totalProfit);
-         return true;
-      }
-      
-      return false;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Close all grid positions                                          |
-   //+------------------------------------------------------------------+
-   void CloseAllGridPositions()
-   {
-      for(int i = PositionsTotal() - 1; i >= 0; i--)
-      {
-         if(position.SelectByIndex(i))
-         {
-            if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
-            {
-               trade.PositionClose(position.Symbol());
-            }
-         }
-      }
-      
-      // Reset grid
-      m_isActive = false;
-      m_currentLevel = 0;
-      m_totalVolume = 0;
-      m_firstOrderPrice = 0;
-      
-      Print("All grid positions closed. Grid reset.");
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check drawdown limit                                              |
-   //+------------------------------------------------------------------+
-   bool CheckDrawdownLimit()
-   {
-      CAccountInfo account;
-      double balance = account.Balance();
-      double equity = account.Equity();
-      
-      if(balance > 0)
-      {
-         double drawdown = ((balance - equity) / balance) * 100;
-         if(drawdown >= m_maxDrawdownPercent)
-         {
-            Print("Grid drawdown limit reached: ", drawdown, "%");
-            CloseAllGridPositions();
-            return false;
-         }
-      }
-      
-      return true;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get first position type (buy or sell)                             |
-   //+------------------------------------------------------------------+
-   bool GetFirstPositionType()
-   {
-      // Assume first position in grid is the direction
-      for(int i = 0; i < PositionsTotal(); i++)
-      {
-         if(position.SelectByIndex(i))
-         {
-            if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
-            {
-               return (position.Type() == POSITION_TYPE_BUY);
-            }
-         }
-      }
-      return true; // Default to buy
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Normalize lot size                                                |
-   //+------------------------------------------------------------------+
-   double NormalizeLotSize(double lotSize)
-   {
-      double minLot = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MIN);
-      double maxLot = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MAX);
-      double lotStep = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_STEP);
-      
-      lotSize = MathFloor(lotSize / lotStep) * lotStep;
-      lotSize = MathMax(lotSize, minLot);
-      lotSize = MathMin(lotSize, maxLot);
-      
-      return lotSize;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get grid statistics                                               |
-   //+------------------------------------------------------------------+
-   string GetGridStats()
-   {
-      double totalProfit = 0;
-      int posCount = 0;
-      
-      for(int i = 0; i < PositionsTotal(); i++)
-      {
-         if(position.SelectByIndex(i))
-         {
-            if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
-            {
-               totalProfit += position.Profit() + position.Swap() + position.Commission();
-               posCount++;
-            }
-         }
-      }
-      
-      string stats = StringFormat(
-         "Grid: Level=%d/%d, Positions=%d, TotalLot=%.2f, Profit=$%.2f",
-         m_currentLevel, m_maxGridLevels, posCount, m_totalVolume, totalProfit
-      );
-      return stats;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Set grid parameters                                               |
-   //+------------------------------------------------------------------+
-   void SetGridParameters(double gridSize, int maxLevels, double lotMultiplier)
-   {
-      m_gridSize = gridSize;
-      m_maxGridLevels = maxLevels;
-      m_lotMultiplier = lotMultiplier;
-   }
-   
-   void SetRiskParameters(double maxDD, double profitTarget)
-   {
-      m_maxDrawdownPercent = maxDD;
-      m_profitTarget = profitTarget;
-   }
+    CSafeGridSystem(string symbol, int magic, double gridSize,
+                    int maxLevels, double baseLot) {
+        m_symbol = symbol; m_magicNumber = magic;
+        m_gridSize = gridSize; m_baseLot = baseLot;
+        m_maxGridLevels = maxLevels;
+        m_lotMultiplier = 1.0;
+        m_maxDrawdownPercent = 15.0;
+        m_profitTarget = 100.0;
+        m_isActive = false; m_currentLevel = 0; m_totalVolume = 0;
+        m_firstOrderPrice = 0;
+        trade.SetExpertMagicNumber(magic);
+    }
+
+    void InitializeGrid(bool isBuy, double price) {
+        m_isActive = true; m_firstOrderPrice = price;
+        m_currentLevel = 1; m_totalVolume = m_baseLot;
+        Print("[GRID] Init at ", price, " dir=", (isBuy ? "BUY" : "SELL"));
+    }
+
+    bool ShouldAddGridLevel() {
+        if(!m_isActive || m_currentLevel >= m_maxGridLevels) return false;
+        if(!CheckDrawdownLimit()) return false;
+        bool isBuy = GetFirstPositionType();
+        double px  = isBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK)
+                           : SymbolInfoDouble(m_symbol, SYMBOL_BID);
+        double pt  = SymbolInfoDouble(m_symbol, SYMBOL_POINT);
+        double dist = isBuy ? (m_firstOrderPrice - px) / pt
+                            : (px - m_firstOrderPrice) / pt;
+        return (dist >= m_gridSize * m_currentLevel);
+    }
+
+    void AddGridLevel() {
+        bool isBuy = GetFirstPositionType();
+        double px  = isBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK)
+                           : SymbolInfoDouble(m_symbol, SYMBOL_BID);
+        double lot = NormalizeLotSize(m_baseLot * MathPow(m_lotMultiplier, m_currentLevel));
+        bool ok = isBuy ? trade.Buy(lot,  m_symbol, px, 0, 0, "Grid_" + IntegerToString(m_currentLevel+1))
+                        : trade.Sell(lot, m_symbol, px, 0, 0, "Grid_" + IntegerToString(m_currentLevel+1));
+        if(ok) { m_currentLevel++; m_totalVolume += lot; }
+    }
+
+    bool IsProfitTargetReached() {
+        double total = 0;
+        for(int i = 0; i < PositionsTotal(); i++) {
+            if(position.SelectByIndex(i))
+                if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
+                    total += position.Profit() + position.Swap() + position.Commission();
+        }
+        return (total >= m_profitTarget);
+    }
+
+    void CloseAllGridPositions() {
+        for(int i = PositionsTotal() - 1; i >= 0; i--)
+            if(position.SelectByIndex(i))
+                if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
+                    trade.PositionClose(position.Symbol());
+        m_isActive = false; m_currentLevel = 0; m_totalVolume = 0; m_firstOrderPrice = 0;
+    }
+
+    bool CheckDrawdownLimit() {
+        CAccountInfo acc;
+        double dd = (acc.Balance() > 0) ?
+            ((acc.Balance() - acc.Equity()) / acc.Balance() * 100.0) : 0;
+        if(dd >= m_maxDrawdownPercent) { CloseAllGridPositions(); return false; }
+        return true;
+    }
+
+    bool GetFirstPositionType() {
+        for(int i = 0; i < PositionsTotal(); i++)
+            if(position.SelectByIndex(i))
+                if(position.Symbol() == m_symbol && position.Magic() == m_magicNumber)
+                    return (position.Type() == POSITION_TYPE_BUY);
+        return true;
+    }
+
+    double NormalizeLotSize(double lot) {
+        double mn = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MIN);
+        double mx = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MAX);
+        double st = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_STEP);
+        return MathMax(mn, MathMin(mx, MathFloor(lot / st) * st));
+    }
+
+    void SetRiskParameters(double maxDD, double profitTarget) {
+        m_maxDrawdownPercent = maxDD; m_profitTarget = profitTarget;
+    }
 };
 ```
 
-**IMPORTANT - Grid Trading Guidelines:**
-1. **DO NOT use lot multiplier > 1.5** - Very dangerous!
-2. **ALWAYS set max grid levels** - Never unlimited
-3. **MUST set max drawdown** - Primary protection
-4. **Use in ranging markets** - Not trending markets
-5. **Test in demo MINIMUM 3 months** - Seriously!
+> **Grid Warnings:** Max multiplier 1.5 · Max levels 5 · Always set DD limit · Use in ranging markets only · Demo test minimum 3 months.
 
 ---
 
-### 4. MARTINGALE SYSTEM (ULTRA SAFE VERSION)
-
-Pure martingale is SUICIDE. This is a much safer version with extensive protections.
+### 7.4 Ultra-Safe Martingale System
 
 ```mql5
-//+------------------------------------------------------------------+
-//| Ultra Safe Martingale System                                       |
-//+------------------------------------------------------------------+
 class CSafeMartingale
 {
 private:
-   string            m_symbol;
-   int               m_magicNumber;
-   
-   double            m_baseLot;
-   double            m_multiplier;            // Lot multiplier after loss (keep < 2.0!)
-   int               m_maxSteps;              // Max martingale steps
-   
-   double            m_maxDrawdownPercent;
-   double            m_profitTarget;
-   double            m_stopLossPoints;
-   double            m_takeProfitPoints;
-   
-   int               m_currentStep;
-   double            m_currentLot;
-   bool              m_isActive;
-   
-   int               m_consecutiveLosses;
-   int               m_totalLosses;
-   int               m_totalWins;
-   
-   CTrade            trade;
-   CPositionInfo     position;
+    string  m_symbol;
+    int     m_magicNumber;
+    double  m_baseLot, m_multiplier;
+    int     m_maxSteps, m_currentStep, m_consecutiveLosses;
+    int     m_totalLosses, m_totalWins;
+    double  m_maxDrawdownPercent, m_stopLossPoints, m_takeProfitPoints;
+    bool    m_isActive;
+    CTrade  trade;
+    CPositionInfo position;
 
 public:
-   CSafeMartingale(string symbol, int magic, double baseLot, double multiplier, int maxSteps)
-   {
-      m_symbol = symbol;
-      m_magicNumber = magic;
-      m_baseLot = baseLot;
-      m_multiplier = MathMin(multiplier, 2.0); // Force cap at 2.0!
-      m_maxSteps = MathMin(maxSteps, 5); // Force cap at 5 steps!
-      
-      m_maxDrawdownPercent = 10.0; // STRICT limit
-      m_profitTarget = 50.0;
-      m_stopLossPoints = 50;
-      m_takeProfitPoints = 50;
-      
-      m_currentStep = 0;
-      m_currentLot = baseLot;
-      m_isActive = false;
-      
-      m_consecutiveLosses = 0;
-      m_totalLosses = 0;
-      m_totalWins = 0;
-      
-      trade.SetExpertMagicNumber(magic);
-      
-      Print("!!! WARNING: Martingale system initialized !!!");
-      Print("Multiplier: ", m_multiplier, " Max Steps: ", m_maxSteps);
-      Print("NEVER use Martingale on real account without extensive testing!");
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Open martingale trade                                             |
-   //+------------------------------------------------------------------+
-   bool OpenTrade(bool isBuy)
-   {
-      // Safety checks
-      if(!CanTrade()) return false;
-      
-      double price = isBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK) : 
-                             SymbolInfoDouble(m_symbol, SYMBOL_BID);
-      double point = SymbolInfoDouble(m_symbol, SYMBOL_POINT);
-      
-      // Calculate SL and TP
-      double sl = 0, tp = 0;
-      if(isBuy)
-      {
-         sl = price - (m_stopLossPoints * point);
-         tp = price + (m_takeProfitPoints * point);
-      }
-      else
-      {
-         sl = price + (m_stopLossPoints * point);
-         tp = price - (m_takeProfitPoints * point);
-      }
-      
-      // Calculate lot size
-      double lotSize = CalculateLotSize();
-      
-      // Open trade
-      bool success = false;
-      string comment = "Martingale Step " + IntegerToString(m_currentStep);
-      
-      if(isBuy)
-         success = trade.Buy(lotSize, m_symbol, price, sl, tp, comment);
-      else
-         success = trade.Sell(lotSize, m_symbol, price, sl, tp, comment);
-      
-      if(success)
-      {
-         m_isActive = true;
-         Print("Martingale trade opened: Step ", m_currentStep, " Lot: ", lotSize);
-      }
-      
-      return success;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Calculate lot size for current step                               |
-   //+------------------------------------------------------------------+
-   double CalculateLotSize()
-   {
-      double lotSize = m_baseLot * MathPow(m_multiplier, m_currentStep);
-      
-      // Normalize
-      double minLot = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MIN);
-      double maxLot = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MAX);
-      double lotStep = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_STEP);
-      
-      lotSize = MathFloor(lotSize / lotStep) * lotStep;
-      lotSize = MathMax(lotSize, minLot);
-      lotSize = MathMin(lotSize, maxLot);
-      
-      return lotSize;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Handle trade result                                               |
-   //+------------------------------------------------------------------+
-   void OnTradeResult(bool isWin, double profit)
-   {
-      if(isWin)
-      {
-         // Win - reset martingale
-         m_currentStep = 0;
-         m_consecutiveLosses = 0;
-         m_totalWins++;
-         m_isActive = false;
-         
-         Print("Martingale WIN! Profit: $", profit, " - Sequence reset");
-      }
-      else
-      {
-         // Loss - increase step
-         m_currentStep++;
-         m_consecutiveLosses++;
-         m_totalLosses++;
-         m_isActive = false; // Allow next trade after loss
-         
-         if(m_currentStep >= m_maxSteps)
-         {
-            // Max steps reached - STOP!
-            Print("!!! MARTINGALE MAX STEPS REACHED !!!");
-            Print("Total losses: ", m_consecutiveLosses);
-            Print("Stopping martingale sequence!");
-            
-            m_currentStep = 0;
-            m_consecutiveLosses = 0;
-            
-            // Optional: Pause trading for a while
-            // SetPauseUntil(TimeCurrent() + 3600); // 1 hour pause
-         }
-         else
-         {
-            Print("Martingale LOSS. Moving to step ", m_currentStep);
-         }
-      }
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Check if can trade                                                |
-   //+------------------------------------------------------------------+
-   bool CanTrade()
-   {
-      CAccountInfo account;
-      
-      // Check if sequence is active
-      if(m_isActive)
-      {
-         Print("Martingale sequence already active");
-         return false;
-      }
-      
-      // Check max steps
-      if(m_currentStep >= m_maxSteps)
-      {
-         Print("Max martingale steps reached");
-         return false;
-      }
-      
-      // Check drawdown
-      double balance = account.Balance();
-      double equity = account.Equity();
-      double drawdown = ((balance - equity) / balance) * 100;
-      
-      if(drawdown >= m_maxDrawdownPercent)
-      {
-         Print("Max drawdown reached: ", drawdown, "%");
-         m_currentStep = 0;
-         m_consecutiveLosses = 0;
-         return false;
-      }
-      
-      // Check if account can afford next step
-      double nextLot = CalculateLotSize();
-      double requiredMargin = 0;
-      
-      if(!OrderCalcMargin(ORDER_TYPE_BUY, m_symbol, nextLot, 
-                          SymbolInfoDouble(m_symbol, SYMBOL_ASK), requiredMargin))
-      {
-         Print("Failed to calculate margin");
-         return false;
-      }
-      
-      double freeMargin = account.FreeMargin();
-      if(requiredMargin > freeMargin * 0.5) // Use max 50% of free margin
-      {
-         Print("Insufficient margin for next martingale step");
-         Print("Required: ", requiredMargin, " Available: ", freeMargin);
-         m_currentStep = 0;
-         return false;
-      }
-      
-      // Stop after 3 consecutive losses in martingale
-      if(m_consecutiveLosses >= 3)
-      {
-         Print("Too many consecutive losses: ", m_consecutiveLosses);
-         Print("Pausing martingale system");
-         m_currentStep = 0;
-         m_consecutiveLosses = 0;
-         return false;
-      }
-      
-      return true;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get martingale statistics                                         |
-   //+------------------------------------------------------------------+
-   string GetStats()
-   {
-      double winRate = 0;
-      if(m_totalWins + m_totalLosses > 0)
-         winRate = (double)m_totalWins / (m_totalWins + m_totalLosses) * 100;
-      
-      string stats = StringFormat(
-         "Martingale: Step=%d/%d, ConsecLoss=%d, Wins=%d, Losses=%d, WinRate=%.1f%%, NextLot=%.2f",
-         m_currentStep, m_maxSteps, m_consecutiveLosses,
-         m_totalWins, m_totalLosses, winRate, CalculateLotSize()
-      );
-      return stats;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Reset martingale sequence                                         |
-   //+------------------------------------------------------------------+
-   void Reset()
-   {
-      m_currentStep = 0;
-      m_consecutiveLosses = 0;
-      m_isActive = false;
-      Print("Martingale sequence manually reset");
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get maximum possible loss in sequence                             |
-   //+------------------------------------------------------------------+
-   double GetMaxPossibleLoss()
-   {
-      double totalLoss = 0;
-      for(int i = 0; i <= m_maxSteps; i++)
-      {
-         double lot = m_baseLot * MathPow(m_multiplier, i);
-         totalLoss += lot * m_stopLossPoints * SymbolInfoDouble(m_symbol, SYMBOL_TRADE_TICK_VALUE) / 
-                      SymbolInfoDouble(m_symbol, SYMBOL_TRADE_TICK_SIZE) * 
-                      SymbolInfoDouble(m_symbol, SYMBOL_POINT);
-      }
-      return totalLoss;
-   }
+    CSafeMartingale(string symbol, int magic, double baseLot,
+                    double multiplier, int maxSteps) {
+        m_symbol = symbol; m_magicNumber = magic; m_baseLot = baseLot;
+        m_multiplier = MathMin(multiplier, 2.0);
+        m_maxSteps   = MathMin(maxSteps, 5);
+        m_maxDrawdownPercent = 10.0;
+        m_stopLossPoints = m_takeProfitPoints = 50;
+        m_currentStep = m_consecutiveLosses = m_totalLosses = m_totalWins = 0;
+        m_isActive = false;
+        trade.SetExpertMagicNumber(magic);
+        Print("[WARN] Martingale initialized. NEVER use on real without extensive testing!");
+    }
+
+    bool OpenTrade(bool isBuy) {
+        if(!CanTrade()) return false;
+        double px  = isBuy ? SymbolInfoDouble(m_symbol, SYMBOL_ASK)
+                           : SymbolInfoDouble(m_symbol, SYMBOL_BID);
+        double pt  = SymbolInfoDouble(m_symbol, SYMBOL_POINT);
+        double sl  = isBuy ? NormalizeDouble(px - m_stopLossPoints * pt,  _Digits)
+                           : NormalizeDouble(px + m_stopLossPoints * pt,  _Digits);
+        double tp  = isBuy ? NormalizeDouble(px + m_takeProfitPoints * pt, _Digits)
+                           : NormalizeDouble(px - m_takeProfitPoints * pt, _Digits);
+        double lot = CalculateLotSize();
+        string cmt = "MG_Step" + IntegerToString(m_currentStep);
+        bool ok = isBuy ? trade.Buy(lot, m_symbol, px, sl, tp, cmt)
+                        : trade.Sell(lot, m_symbol, px, sl, tp, cmt);
+        if(ok) { m_isActive = true; Print("[MG] Step ", m_currentStep, " Lot=", lot); }
+        return ok;
+    }
+
+    double CalculateLotSize() {
+        double lot = m_baseLot * MathPow(m_multiplier, m_currentStep);
+        double mn  = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MIN);
+        double mx  = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_MAX);
+        double st  = SymbolInfoDouble(m_symbol, SYMBOL_VOLUME_STEP);
+        return MathMax(mn, MathMin(mx, MathFloor(lot / st) * st));
+    }
+
+    void OnTradeResult(bool isWin, double profit) {
+        if(isWin) {
+            m_currentStep = 0; m_consecutiveLosses = 0; m_totalWins++;
+            m_isActive = false;
+            Print("[MG] WIN $", profit, " - sequence reset");
+        } else {
+            m_currentStep++; m_consecutiveLosses++; m_totalLosses++;
+            m_isActive = false;
+            if(m_currentStep >= m_maxSteps) {
+                Print("[MG] MAX STEPS reached — sequence stopped!");
+                m_currentStep = m_consecutiveLosses = 0;
+            }
+        }
+    }
+
+    bool CanTrade() {
+        if(m_isActive)                       return false;
+        if(m_currentStep >= m_maxSteps)      return false;
+        if(m_consecutiveLosses >= 3)         { m_currentStep = m_consecutiveLosses = 0; return false; }
+        CAccountInfo acc;
+        double dd = (acc.Balance() > 0) ?
+            ((acc.Balance() - acc.Equity()) / acc.Balance() * 100.0) : 0;
+        if(dd >= m_maxDrawdownPercent)       { m_currentStep = m_consecutiveLosses = 0; return false; }
+        return true;
+    }
+
+    void Reset() { m_currentStep = m_consecutiveLosses = 0; m_isActive = false; }
 };
 ```
 
-**CRITICAL MARTINGALE WARNINGS:**
-
-⚠️ **MARTINGALE DANGERS:**
-1. **Can wipe out account in minutes**
-2. **High win rate but one loss can destroy all profits**
-3. **No real edge, just betting against probability**
-4. **Brokers may ban due to suspicious activity**
-
-✅ **IF YOU MUST USE (NOT RECOMMENDED):**
-1. **Max multiplier: 1.5** (NEVER 2.0 or higher!)
-2. **Max steps: 3-4** (NEVER 5+)
-3. **Max drawdown: 10%** (STRICT)
-4. **Test in demo minimum 6 months**
-5. **Use ONLY in low volatility pairs** (EUR/USD, not GBP/JPY)
-6. **Use ONLY in ranging markets**
-7. **Prepare mentally for 100% loss** - Because it can happen
+> **Martingale Warnings:** Can wipe account instantly · Max multiplier 1.5 · Max steps 3-4 · Max DD 10% · Demo test minimum 6 months · Use ONLY on low-volatility ranging pairs.
 
 ---
 
-## BACKTESTING & OPTIMIZATION
-
-### Strategy Tester Best Practices
+## Section 8 — Prop Firm Safety Module {#section-8}
 
 ```mql5
-//+------------------------------------------------------------------+
-//| Backtesting Guidelines                                             |
-//+------------------------------------------------------------------+
+input group "=== PROP FIRM RULES ==="
+input double InpMaxDailyDD  = 4.5;    // Max daily drawdown %
+input double InpMaxTotalDD  = 9.0;    // Max total drawdown %
+input double InpMinBalance  = 500.0;  // Halt if balance < this
+input bool   InpHaltOnDD    = true;   // Hard halt on DD breach
 
-// 1. MINIMUM DATA REQUIREMENTS
-// - Minimum 1 year data for initial test
-// - Minimum 3-5 years for validation
-// - Test across various market conditions (trend, range, high volatility, low volatility)
+double g_DayStartBalance = 0;
+bool   g_TradingHalted   = false;
+int    g_LastDayChecked  = -1;
 
-// 2. OPTIMIZATION PARAMETERS
-// - Don't optimize too many parameters (max 3-4)
-// - Use walk-forward optimization
-// - Validate on out-of-sample data
+void UpdateDayBaseline() {
+    MqlDateTime dt; TimeToStruct(TimeCurrent(), dt);
+    if(dt.day != g_LastDayChecked) {
+        g_DayStartBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+        g_LastDayChecked  = dt.day;
+        Print("[PROP] New day baseline: ", g_DayStartBalance);
+    }
+}
 
-// 3. KEY METRICS TO TRACK
-// - Profit Factor > 1.5 (minimum)
-// - Win Rate: 40-60% (sweet spot)
-// - Max Drawdown < 20%
-// - Recovery Factor > 3
-// - Sharpe Ratio > 1.0
+void CheckPropRules() {
+    if(!InpHaltOnDD) return;
+    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
+    double equity  = AccountInfoDouble(ACCOUNT_EQUITY);
+    if(g_DayStartBalance <= 0) g_DayStartBalance = balance;
 
-// 4. OVERFITTING DETECTION
-// - Compare in-sample vs out-of-sample results
-// - If out-of-sample performance drops > 30%, likely overfitted
-// - Use more robust parameters (less precise = more stable)
+    double dayDD   = (g_DayStartBalance - equity) / g_DayStartBalance * 100.0;
+    double totalDD = (balance - equity) / balance * 100.0;
 
-// 5. FORWARD TESTING
-// - Test di demo account minimum 3 bulan
-// - Monitor slippage and execution quality
-// - Compare live vs backtest results
+    if(dayDD >= InpMaxDailyDD) {
+        Print("[PROP HALT] Daily DD ", DoubleToString(dayDD,2), "% >= limit");
+        CloseAllMagicPositions(); g_TradingHalted = true;
+    }
+    if(totalDD >= InpMaxTotalDD) {
+        Print("[PROP HALT] Total DD ", DoubleToString(totalDD,2), "% >= limit");
+        CloseAllMagicPositions(); g_TradingHalted = true;
+    }
+    if(balance < InpMinBalance) {
+        Print("[PROP HALT] Balance below minimum");
+        g_TradingHalted = true;
+    }
+}
 
-//+------------------------------------------------------------------+
-//| Backtesting Validation Class                                       |
-//+------------------------------------------------------------------+
-class CBacktestValidator
-{
+void CloseAllMagicPositions() {
+    for(int i = PositionsTotal() - 1; i >= 0; i--) {
+        ulong ticket = PositionGetTicket(i);
+        if(!PositionSelectByTicket(ticket)) continue;
+        if(PositionGetString(POSITION_SYMBOL)  != _Symbol)        continue;
+        if(PositionGetInteger(POSITION_MAGIC)  != InpMagicNumber) continue;
+        if(!c_Trade.PositionClose(ticket))
+            Print("[ERROR] Close failed: ", c_Trade.ResultRetcodeDescription());
+    }
+}
+```
+
+---
+
+## Section 9 — Custom Indicator Standards {#section-9}
+
+### Buffer Setup (Complete Pattern)
+```mql5
+#property indicator_chart_window
+#property indicator_buffers 3
+#property indicator_plots   2
+
+#property indicator_label1  "Signal Buy"
+#property indicator_type1   DRAW_ARROW
+#property indicator_color1  clrDodgerBlue
+#property indicator_width1  2
+
+#property indicator_label2  "Signal Sell"
+#property indicator_type2   DRAW_ARROW
+#property indicator_color2  clrTomato
+#property indicator_width2  2
+
+double BufBuy[], BufSell[], BufCalc[];
+
+int OnInit() {
+    SetIndexBuffer(0, BufBuy,  INDICATOR_DATA);
+    SetIndexBuffer(1, BufSell, INDICATOR_DATA);
+    SetIndexBuffer(2, BufCalc, INDICATOR_CALCULATIONS);
+    PlotIndexSetDouble(0,  PLOT_EMPTY_VALUE, 0.0);
+    PlotIndexSetDouble(1,  PLOT_EMPTY_VALUE, 0.0);
+    PlotIndexSetInteger(0, PLOT_ARROW, 233);
+    PlotIndexSetInteger(1, PLOT_ARROW, 234);
+    IndicatorSetInteger(INDICATOR_DIGITS, _Digits);
+    IndicatorSetString(INDICATOR_SHORTNAME, "MyInd(" + IntegerToString(InpPeriod) + ")");
+    return INIT_SUCCEEDED;
+}
+```
+
+### OnCalculate — Correct Incremental Pattern
+```mql5
+int OnCalculate(const int rates_total, const int prev_calculated,
+                const datetime& time[], const double& open[],
+                const double& high[], const double& low[],
+                const double& close[], const long& tick_volume[],
+                const long& volume[], const int& spread[]) {
+    if(rates_total < InpPeriod + 2) return 0;
+    int startBar = (prev_calculated <= 0) ? InpPeriod : prev_calculated - 1;
+    ArraySetAsSeries(close, true);
+    ArraySetAsSeries(high,  true);
+    ArraySetAsSeries(low,   true);
+    for(int i = startBar; i < rates_total; i++) {
+        // calculate BufBuy[i], BufSell[i] here
+    }
+    return rates_total;
+}
+```
+
+### Chart Objects (With Prefix & Cleanup)
+```mql5
+string g_ObjPrefix = "PRJ_";
+
+void DrawOB(datetime t1, double p1, datetime t2, double p2,
+            color c, string label) {
+    string name = g_ObjPrefix + "OB_" + IntegerToString((int)t1);
+    if(ObjectFind(0, name) >= 0) ObjectDelete(0, name);
+    ObjectCreate(0, name, OBJ_RECTANGLE, 0, t1, p1, t2, p2);
+    ObjectSetInteger(0, name, OBJPROP_COLOR,        c);
+    ObjectSetInteger(0, name, OBJPROP_FILL,         true);
+    ObjectSetInteger(0, name, OBJPROP_BACK,         true);
+    ObjectSetInteger(0, name, OBJPROP_TRANSPARENCY, 75);
+    ObjectSetString(0,  name, OBJPROP_TOOLTIP,      label);
+}
+
+// In OnDeinit: ObjectsDeleteAll(0, g_ObjPrefix);
+```
+
+---
+
+## Section 10 — Dashboard Panel {#section-10}
+
+```mql5
+#include <ChartObjects\ChartObjectsTxtControls.mqh>
+
+class CDashboard {
 private:
-   int               m_totalTrades;
-   int               m_winningTrades;
-   int               m_losingTrades;
-   
-   double            m_grossProfit;
-   double            m_grossLoss;
-   double            m_netProfit;
-   
-   double            m_maxDrawdown;
-   double            m_maxDrawdownPercent;
-   
-   double            m_largestWin;
-   double            m_largestLoss;
-   double            m_avgWin;
-   double            m_avgLoss;
-   
-   datetime          m_startTime;
-   datetime          m_endTime;
-   double            m_initialBalance;
+    string             m_prefix;
+    int                m_x, m_y, m_lineH, m_fontSize;
+    color              m_textColor, m_posColor, m_negColor;
+    CChartObjectLabel  m_labels[];
+
+    void SetLabel(int idx, int x, int y, string text, color clr) {
+        if(idx >= ArraySize(m_labels)) ArrayResize(m_labels, idx + 1);
+        string name = m_prefix + "lbl" + IntegerToString(idx);
+        if(ObjectFind(0, name) < 0) m_labels[idx].Create(0, name, 0, x, y);
+        m_labels[idx].FontSize(m_fontSize);
+        m_labels[idx].Color(clr);
+        m_labels[idx].Description(text);
+    }
 
 public:
-   CBacktestValidator()
-   {
-      // Capture initial balance at construction
-      CAccountInfo account;
-      m_initialBalance = account.Balance();
-      m_startTime = TimeCurrent();
-      Reset();
-   }
-   
-   void Reset()
-   {
-      m_totalTrades = 0;
-      m_winningTrades = 0;
-      m_losingTrades = 0;
-      m_grossProfit = 0;
-      m_grossLoss = 0;
-      m_netProfit = 0;
-      m_maxDrawdown = 0;
-      m_maxDrawdownPercent = 0;
-      m_largestWin = 0;
-      m_largestLoss = 0;
-      m_avgWin = 0;
-      m_avgLoss = 0;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Calculate all statistics from history                             |
-   //+------------------------------------------------------------------+
-   void CalculateStats()
-   {
-      Reset();
-      
-      // Initial balance already captured in constructor
-      // No need to re-assign here
-      
-      // Get all closed positions from history
-      HistorySelect(m_startTime, TimeCurrent());
-      
-      int totalDeals = HistoryDealsTotal();
-      
-      double runningBalance = m_initialBalance;
-      double peakBalance = m_initialBalance;
-      
-      for(int i = 0; i < totalDeals; i++)
-      {
-         ulong ticket = HistoryDealGetTicket(i);
-         if(ticket > 0)
-         {
-            long dealEntry = HistoryDealGetInteger(ticket, DEAL_ENTRY);
-            
-            // Only process EXIT deals (position close)
-            if(dealEntry == DEAL_ENTRY_OUT || dealEntry == DEAL_ENTRY_OUT_BY)
-            {
-               double profit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
-               double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
-               double swap = HistoryDealGetDouble(ticket, DEAL_SWAP);
-               
-               double netResult = profit + commission + swap;
-               
-               if(netResult != 0) // Ignore zero profit trades
-               {
-                  m_totalTrades++;
-                  m_netProfit += netResult;
-                  runningBalance += netResult;
-                  
-                  if(netResult > 0)
-                  {
-                     m_winningTrades++;
-                     m_grossProfit += netResult;
-                     m_avgWin += netResult;
-                     
-                     if(netResult > m_largestWin)
-                        m_largestWin = netResult;
-                  }
-                  else
-                  {
-                     m_losingTrades++;
-                     m_grossLoss += netResult;
-                     m_avgLoss += netResult;
-                     
-                     if(netResult < m_largestLoss)
-                        m_largestLoss = netResult;
-                  }
-                  
-                  // Track drawdown
-                  if(runningBalance > peakBalance)
-                     peakBalance = runningBalance;
-                  
-                  double currentDD = peakBalance - runningBalance;
-                  if(currentDD > m_maxDrawdown)
-                  {
-                     m_maxDrawdown = currentDD;
-                     m_maxDrawdownPercent = (currentDD / peakBalance) * 100;
-                  }
-               }
-            }
-         }
-      }
-      
-      // Calculate averages
-      if(m_winningTrades > 0)
-         m_avgWin /= m_winningTrades;
-      if(m_losingTrades > 0)
-         m_avgLoss /= m_losingTrades;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get profit factor                                                 |
-   //+------------------------------------------------------------------+
-   double GetProfitFactor()
-   {
-      if(m_grossLoss == 0) return 0;
-      return m_grossProfit / MathAbs(m_grossLoss);
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get win rate                                                      |
-   //+------------------------------------------------------------------+
-   double GetWinRate()
-   {
-      if(m_totalTrades == 0) return 0;
-      return (double)m_winningTrades / m_totalTrades * 100;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get recovery factor                                               |
-   //+------------------------------------------------------------------+
-   double GetRecoveryFactor()
-   {
-      if(m_maxDrawdown == 0) return 0;
-      return m_netProfit / m_maxDrawdown;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get average win/loss ratio                                        |
-   //+------------------------------------------------------------------+
-   double GetWinLossRatio()
-   {
-      if(m_avgLoss == 0) return 0;
-      return m_avgWin / MathAbs(m_avgLoss);
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Get Sharpe Ratio (simplified)                                     |
-   //+------------------------------------------------------------------+
-   double GetSharpeRatio()
-   {
-      if(m_totalTrades < 2) return 0;
-      
-      // Calculate standard deviation of returns
-      HistorySelect(m_startTime, TimeCurrent());
-      int totalDeals = HistoryDealsTotal();
-      
-      double returns[];
-      ArrayResize(returns, 0);
-      
-      for(int i = 0; i < totalDeals; i++)
-      {
-         ulong ticket = HistoryDealGetTicket(i);
-         if(ticket > 0)
-         {
-            long dealEntry = HistoryDealGetInteger(ticket, DEAL_ENTRY);
-            
-            // Only count EXIT deals
-            if(dealEntry == DEAL_ENTRY_OUT || dealEntry == DEAL_ENTRY_OUT_BY)
-            {
-               double profit = HistoryDealGetDouble(ticket, DEAL_PROFIT) +
-                             HistoryDealGetDouble(ticket, DEAL_COMMISSION) +
-                             HistoryDealGetDouble(ticket, DEAL_SWAP);
-               
-               if(profit != 0)
-               {
-                  int size = ArraySize(returns);
-                  ArrayResize(returns, size + 1);
-                  returns[size] = profit;
-               }
-            }
-         }
-      }
-      
-      // Guard against empty array
-      if(ArraySize(returns) < 2) return 0;
-      
-      // Calculate mean return
-      double meanReturn = 0;
-      for(int i = 0; i < ArraySize(returns); i++)
-         meanReturn += returns[i];
-      meanReturn /= ArraySize(returns);
-      
-      // Calculate standard deviation
-      double variance = 0;
-      for(int i = 0; i < ArraySize(returns); i++)
-      {
-         double diff = returns[i] - meanReturn;
-         variance += diff * diff;
-      }
-      variance /= (ArraySize(returns) - 1);
-      double stdDev = MathSqrt(variance);
-      
-      if(stdDev == 0) return 0;
-      
-      // Sharpe Ratio = Mean Return / Std Deviation
-      return meanReturn / stdDev;
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Print comprehensive report                                         |
-   //+------------------------------------------------------------------+
-   void PrintReport()
-   {
-      Print("========================================");
-      Print("BACKTEST VALIDATION REPORT");
-      Print("========================================");
-      Print("Total Trades: ", m_totalTrades);
-      Print("Winning Trades: ", m_winningTrades, " (", GetWinRate(), "%)");
-      Print("Losing Trades: ", m_losingTrades);
-      Print("----------------------------------------");
-      Print("Net Profit: $", m_netProfit);
-      Print("Gross Profit: $", m_grossProfit);
-      Print("Gross Loss: $", m_grossLoss);
-      Print("Profit Factor: ", GetProfitFactor());
-      Print("----------------------------------------");
-      Print("Average Win: $", m_avgWin);
-      Print("Average Loss: $", m_avgLoss);
-      Print("Win/Loss Ratio: ", GetWinLossRatio());
-      Print("Largest Win: $", m_largestWin);
-      Print("Largest Loss: $", m_largestLoss);
-      Print("----------------------------------------");
-      Print("Max Drawdown: $", m_maxDrawdown, " (", m_maxDrawdownPercent, "%)");
-      Print("Recovery Factor: ", GetRecoveryFactor());
-      Print("Sharpe Ratio: ", GetSharpeRatio());
-      Print("----------------------------------------");
-      
-      // Provide assessment
-      Print("ASSESSMENT:");
-      
-      bool passed = true;
-      
-      if(GetProfitFactor() < 1.5)
-      {
-         Print("❌ Profit Factor too low (< 1.5)");
-         passed = false;
-      }
-      else
-         Print("✓ Profit Factor acceptable");
-      
-      if(GetWinRate() < 35 || GetWinRate() > 70)
-      {
-         Print("⚠ Win Rate outside optimal range (35-70%)");
-      }
-      else
-         Print("✓ Win Rate in good range");
-      
-      if(m_maxDrawdownPercent > 20)
-      {
-         Print("❌ Max Drawdown too high (> 20%)");
-         passed = false;
-      }
-      else
-         Print("✓ Max Drawdown acceptable");
-      
-      if(GetRecoveryFactor() < 3)
-      {
-         Print("❌ Recovery Factor too low (< 3)");
-         passed = false;
-      }
-      else
-         Print("✓ Recovery Factor acceptable");
-      
-      if(GetSharpeRatio() < 1.0)
-      {
-         Print("⚠ Sharpe Ratio could be better (< 1.0)");
-      }
-      else
-         Print("✓ Sharpe Ratio good");
-      
-      if(m_totalTrades < 100)
-      {
-         Print("⚠ Sample size small (< 100 trades)");
-      }
-      else
-         Print("✓ Sample size adequate");
-      
-      Print("========================================");
-      
-      if(passed)
-         Print("✓ STRATEGY PASSED VALIDATION");
-      else
-         Print("❌ STRATEGY FAILED VALIDATION - DO NOT USE ON REAL ACCOUNT");
-      
-      Print("========================================");
-   }
-   
-   //+------------------------------------------------------------------+
-   //| Is strategy acceptable?                                           |
-   //+------------------------------------------------------------------+
-   bool IsStrategyAcceptable()
-   {
-      if(m_totalTrades < 50) return false; // Too few trades
-      if(GetProfitFactor() < 1.5) return false;
-      if(m_maxDrawdownPercent > 20) return false;
-      if(GetRecoveryFactor() < 3) return false;
-      
-      return true;
-   }
+    CDashboard(string prefix = "DB_") {
+        m_prefix = prefix; m_x = 10; m_y = 20; m_lineH = 18; m_fontSize = 9;
+        m_textColor = clrWhite; m_posColor = clrLimeGreen; m_negColor = clrTomato;
+    }
+
+    void Update(double balance, double equity, double floatPL,
+                int openTrades, bool halted) {
+        color plClr  = (floatPL >= 0) ? m_posColor : m_negColor;
+        color stClr  = halted ? m_negColor : m_posColor;
+        SetLabel(0, m_x, m_y,              "Balance: " + DoubleToString(balance,2),  m_textColor);
+        SetLabel(1, m_x, m_y + m_lineH,    "Equity:  " + DoubleToString(equity,2),   m_textColor);
+        SetLabel(2, m_x, m_y + m_lineH*2,  "Float:   " + DoubleToString(floatPL,2),  plClr);
+        SetLabel(3, m_x, m_y + m_lineH*3,  "Trades:  " + IntegerToString(openTrades),m_textColor);
+        SetLabel(4, m_x, m_y + m_lineH*4,  "Status:  " + (halted ? "HALTED" : "ACTIVE"), stClr);
+        ChartRedraw(0);
+    }
+
+    void Destroy() { ObjectsDeleteAll(0, m_prefix); }
 };
 ```
 
 ---
 
-## PRE-DEPLOYMENT CHECKLIST
+## Section 11 — CSV Logger & Trade Journal {#section-11}
 
-### ✅ Before Going Live
+```mql5
+class CTradeLogger {
+private:
+    int    m_handle;
+    string m_filename;
+
+public:
+    CTradeLogger() : m_handle(INVALID_HANDLE) {}
+    ~CTradeLogger() { Close(); }
+
+    bool Open(string name = "") {
+        m_filename = (name == "") ?
+            "TradeLog_" + _Symbol + "_" + TimeToString(TimeCurrent(), TIME_DATE) + ".csv"
+            : name;
+        m_handle = FileOpen(m_filename, FILE_WRITE|FILE_CSV|FILE_ANSI, ',');
+        if(m_handle == INVALID_HANDLE) return false;
+        FileWrite(m_handle, "Time","Symbol","Type","Lots","Entry","SL","TP","Exit","PL","Comment");
+        return true;
+    }
+
+    void LogTrade(string type, double lots, double entry, double sl, double tp,
+                  double exitPx, double pl, string comment) {
+        if(m_handle == INVALID_HANDLE) return;
+        FileWrite(m_handle,
+            TimeToString(TimeCurrent()), _Symbol, type,
+            DoubleToString(lots,2), DoubleToString(entry,_Digits),
+            DoubleToString(sl,_Digits),    DoubleToString(tp,_Digits),
+            DoubleToString(exitPx,_Digits), DoubleToString(pl,2), comment);
+        FileFlush(m_handle);
+    }
+
+    void Close() {
+        if(m_handle != INVALID_HANDLE) { FileClose(m_handle); m_handle = INVALID_HANDLE; }
+    }
+};
+```
+
+---
+
+## Section 12 — Backtesting & Validation {#section-12}
+
+### Key Metrics Targets
+
+| Metric | Minimum | Good | Excellent |
+|---|---|---|---|
+| Profit Factor | 1.3 | 1.5 | 2.0+ |
+| Win Rate | 35% | 45–55% | 60%+ |
+| Max Drawdown | < 25% | < 15% | < 10% |
+| Recovery Factor | 2 | 3 | 5+ |
+| Sharpe Ratio | 0.8 | 1.2 | 2.0+ |
+| Trade Count | 50+ | 100+ | 300+ |
+
+### Custom OnTester() Metric
+```mql5
+double OnTester() {
+    double pf     = TesterStatistics(STAT_PROFIT_FACTOR);
+    double dd     = TesterStatistics(STAT_EQUITY_DD);
+    double trades = TesterStatistics(STAT_TRADES);
+    double net    = TesterStatistics(STAT_PROFIT);
+    if(trades < 30 || pf < 1.1 || dd > 20) return 0;
+    return (net / (dd > 0 ? dd : 1)) * MathLog(trades);
+}
+```
+
+### Backtest Validator Class
+```mql5
+class CBacktestValidator {
+private:
+    int    m_total, m_wins, m_losses;
+    double m_grossProfit, m_grossLoss, m_netProfit;
+    double m_maxDD, m_maxDDPercent;
+    double m_largestWin, m_largestLoss, m_avgWin, m_avgLoss;
+    datetime m_startTime;
+    double   m_initialBalance;
+
+public:
+    CBacktestValidator() {
+        CAccountInfo acc;
+        m_initialBalance = acc.Balance();
+        m_startTime = TimeCurrent();
+        Reset();
+    }
+
+    void Reset() {
+        m_total = m_wins = m_losses = 0;
+        m_grossProfit = m_grossLoss = m_netProfit = 0;
+        m_maxDD = m_maxDDPercent = 0;
+        m_largestWin = m_largestLoss = m_avgWin = m_avgLoss = 0;
+    }
+
+    void CalculateStats() {
+        Reset();
+        HistorySelect(m_startTime, TimeCurrent());
+        int totalDeals = HistoryDealsTotal();
+        double runBal = m_initialBalance, peakBal = m_initialBalance;
+
+        for(int i = 0; i < totalDeals; i++) {
+            ulong ticket = HistoryDealGetTicket(i);
+            if(ticket == 0) continue;
+            long entry = HistoryDealGetInteger(ticket, DEAL_ENTRY);
+            if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY) continue;
+            double net = HistoryDealGetDouble(ticket, DEAL_PROFIT)
+                       + HistoryDealGetDouble(ticket, DEAL_COMMISSION)
+                       + HistoryDealGetDouble(ticket, DEAL_SWAP);
+            if(net == 0) continue;
+            m_total++; m_netProfit += net; runBal += net;
+            if(net > 0) {
+                m_wins++; m_grossProfit += net; m_avgWin += net;
+                if(net > m_largestWin) m_largestWin = net;
+            } else {
+                m_losses++; m_grossLoss += net; m_avgLoss += net;
+                if(net < m_largestLoss) m_largestLoss = net;
+            }
+            if(runBal > peakBal) peakBal = runBal;
+            double curDD = peakBal - runBal;
+            if(curDD > m_maxDD) {
+                m_maxDD = curDD;
+                m_maxDDPercent = (curDD / peakBal) * 100;
+            }
+        }
+        if(m_wins   > 0) m_avgWin  /= m_wins;
+        if(m_losses > 0) m_avgLoss /= m_losses;
+    }
+
+    double GetProfitFactor()  { return (m_grossLoss  != 0) ? m_grossProfit / MathAbs(m_grossLoss)  : 0; }
+    double GetWinRate()       { return (m_total > 0) ? (double)m_wins / m_total * 100.0 : 0; }
+    double GetRecoveryFactor(){ return (m_maxDD > 0) ? m_netProfit / m_maxDD : 0; }
+    double GetWinLossRatio()  { return (m_avgLoss != 0) ? m_avgWin / MathAbs(m_avgLoss) : 0; }
+
+    bool IsStrategyAcceptable() {
+        return (m_total >= 50 && GetProfitFactor() >= 1.5 &&
+                m_maxDDPercent <= 20 && GetRecoveryFactor() >= 3);
+    }
+
+    void PrintReport() {
+        Print("=== BACKTEST REPORT ===");
+        Print("Trades: ", m_total, " | Win: ", GetWinRate(), "%");
+        Print("PF: ", GetProfitFactor(), " | Net: $", m_netProfit);
+        Print("MaxDD: ", m_maxDDPercent, "% | RF: ", GetRecoveryFactor());
+        Print("AvgW: $", m_avgWin, " | AvgL: $", m_avgLoss);
+        Print("Result: ", IsStrategyAcceptable() ? "PASS" : "FAIL");
+        Print("======================");
+    }
+};
+```
+
+---
+
+## Section 13 — Debugging & Pitfalls {#section-13}
+
+### Structured Print Protocol
+```
+[INFO]   → state changes, normal flow
+[ENTRY]  → trade placed
+[EXIT]   → trade closed
+[BE]     → break-even moved
+[TRAIL]  → trailing stop updated
+[FILTER] → condition blocked entry
+[WARN]   → recoverable issue
+[ERROR]  → function failure
+[PROP]   → prop firm rule triggered
+[BLOCK]  → hard stop, EA suspended
+```
+
+### Common MQL5 Pitfalls — Zero Tolerance
+
+| Pitfall | Wrong | Correct |
+|---|---|---|
+| Pips vs Points (5-digit) | `sl = pips * _Point` | `sl = pips * _Point * 10` |
+| Bar [0] on new tick | Use `close[0]` in logic | Guard with `IsNewBar()` or use `[1]` |
+| Unvalidated handle | `CopyBuffer(h, ...)` | Check `h != INVALID_HANDLE` first |
+| Old trade API | `OrderSend()` / `OrderModify()` | `CTrade` methods only |
+| No normalization | `sl = price - dist` | `NormalizeDouble(price - dist, _Digits)` |
+| Wrong array direction | `CopyBuffer` without series | `ArraySetAsSeries(arr, true)` first |
+| Missing magic filter | Loop all positions | Filter `POSITION_MAGIC == magic` |
+| Handle in OnTick | Create `iMA()` in `OnTick` | Create in `OnInit`, release `OnDeinit` |
+| No slippage set | CTrade default | `trade.SetDeviationInPoints(30)` |
+| TP on wrong side | `TP = entry - dist` for buy | TP must be above ask for buys |
+| Min stops violation | Fixed pips SL | Check `SYMBOL_TRADE_STOPS_LEVEL` |
+| Filling type mismatch | Hardcode `FOK` | Use input or `SetTypeFillingBySymbol` |
+| Memory leak (objects) | Create `OBJ_` never delete | Prefix + `ObjectsDeleteAll` OnDeinit |
+| Point value error | `tickValue / tickSize` only | `tickVal * (_Point / tickSize)` |
+
+---
+
+## Section 14 — Response Delivery Format {#section-14}
+
+When delivering any MQL5 solution:
+
+1. **Summary (3-5 sentences):** what it does, key design decisions, known limitations.
+
+2. **Pre-requirements:** MT5 build version, any `.mqh` dependencies, broker requirements (ECN/STP, min stop level, filling modes).
+
+3. **File list:** for multi-file projects, show complete directory structure first.
+
+4. **Complete code:** every file, every line — never truncate, never use `// ...`. For files > 300 lines, include a Table of Contents comment block at the top.
+
+5. **Setup instructions:**
+   - Where to place files in MT5 data folder
+   - Input parameters to configure first (magic, risk, spread filter)
+   - Broker-specific settings to verify (filling mode, min stops, swap)
+
+6. **Backtesting notes:**
+   - Recommended symbol(s) and date range
+   - Whether visual mode is required
+   - Optimization variables and ranges
+   - `OnTester()` metric explanation
+
+7. **Known limitations:** be explicit about what is NOT handled (e.g., "does not support hedging mode accounts").
+
+---
+
+## Section 15 — Specializations {#section-15}
+
+You are expert-level in every area below. When a request uses these frameworks, implement them directly without asking for methodology explanation:
+
+**Price Action & Structure**
+CRT · SMC · ICT · Wyckoff · Supply & Demand Zones · Harmonic Patterns · Order Blocks · FVG · BOS · CHoCH · Liquidity Sweeps · Displacement
+
+**Session & Time-Based**
+Asian Range · London Kill Zone · NY Kill Zone · Silver Bullet · NWOG / NDOG · Previous Day/Week H/L · Quarterly Theory
+
+**Technical Systems**
+Multi-timeframe confluence (HTF bias + LTF entry) · Moving average systems · Oscillator-based (RSI divergence, stochastic, MACD) · Volatility adaptive (ATR-based) · Volume analysis (VSA, delta, imbalance)
+
+**Money Management**
+Fixed % risk · ATR adaptive · Kelly Criterion · Martingale (when explicitly requested with warnings) · Pyramiding/scaling in · Partial close sequences · Portfolio correlation
+
+**Trade Management**
+Break-even (fixed pips + ATR) · Trailing stop (pips / ATR / structure-based) · Partial close at RR milestones · Time-based exit
+
+**Prop Firm Compliance**
+FTMO · The5%ers · MyForexFunds · E8 Markets · Daily/total DD monitors · Max position limits · Consistency rules
+
+**Advanced Features**
+Dashboard panels (CChartObject) · Chart drawing (OB, FVG, levels) · CSV trade journal · MT5 native alerts · Push notifications · Telegram bot (via WebRequest) · OnTimer() async workflows · Multi-symbol portfolio EAs · Strategy Tester optimization with custom `OnTester()` · Input parameter validation
+
+---
+
+## Section 16 — Pre-Deployment Checklist {#section-16}
 
 ```
-TESTING PHASE:
-□ Backtest minimum 3 years with quality data
+BACKTESTING:
+□ Minimum 3 years quality tick data
 □ Profit factor > 1.5
 □ Max drawdown < 20%
 □ Recovery factor > 3
-□ Minimum 100 trades in backtest
-□ Win rate 40-60% (sustainable range)
-□ Test in various market conditions (trend, range, high vol, low vol)
+□ Minimum 100 trades
+□ Test across trend, range, high vol, low vol regimes
 
 DEMO TRADING:
 □ Demo trading minimum 3 months
-□ Compare backtest vs demo results (difference < 30%)
-□ Monitor slippage and execution quality
-□ Test all features (BE, trailing, daily limits)
-□ Verify no errors in log
+□ Backtest vs demo difference < 30%
+□ Monitor slippage and execution
+□ Test all features: BE, trailing, daily limits
+□ Zero errors in MT5 Journal log
 
 RISK MANAGEMENT:
-□ Set max risk per trade <= 1%
-□ Set max daily loss <= 5%
-□ Set max drawdown <= 20%
-□ Enable all protective stops
-□ Document worst-case scenario loss
+□ Max risk per trade <= 1%
+□ Max daily loss <= 5%
+□ Max drawdown <= 20%
+□ All protective stops enabled
 
 CODE QUALITY:
-□ No errors in compilation
-□ No critical warnings
-□ Error handling for all trade operations
-□ Logging for debug purposes
+□ Zero compilation errors
+□ Zero compilation warnings
+□ All trade operations error-checked
+□ Journal logging active
 □ Magic number unique
-□ Code commented and documented
+□ OnDeinit releases all handles and objects
 
-BROKER REQUIREMENTS:
-□ Verify broker allows EA trading
-□ Check spread requirements
-□ Confirm execution speed acceptable
-□ Verify no restrictions on trading strategy
-□ Check margin requirements
+BROKER CHECKS:
+□ Verify EA trading allowed
+□ Check spread filter value matches broker spread
+□ Confirm filling mode (FOK/IOC/Return)
+□ Verify minimum stop level
+□ Check swap rates impact
 
 PSYCHOLOGICAL PREPARATION:
-□ Ready to see 10-20% drawdown
-□ Won't panic close EA during losses
-□ Won't interfere with EA trades
-□ Have exit strategy if performance drops
-□ Prepared for worst case (total loss of capital)
-
-MONITORING SETUP:
-□ Setup notification system (email/telegram)
-□ Daily performance tracking
-□ Weekly analysis and review
-□ Monthly reoptimization schedule
-□ Emergency stop procedure documented
+□ Accept 10-20% drawdown as normal
+□ Will not manually override EA trades
+□ Have emergency stop procedure documented
+□ Risk only what you can afford to lose completely
 ```
 
 ---
 
-## SURVIVAL TIPS FOR REAL MARKET
+## When to Use This Skill {#when-to-use}
 
-### 1. **Start VERY Small**
-- Start with minimum account (not all capital)
-- Risk per trade: 0.5% (not 1%)
-- Scale up ONLY after 6 months profitable
-
-### 2. **Monitor Like Your Life Depends On It** (Because it does!)
-- Check EA performance DAILY
-- Review trades WEEKLY
-- Re-backtest MONTHLY
-- Re-optimize QUARTERLY
-
-### 3. **Adapt to Market Changes**
-- Markets change - EAs must be updated
-- If performance drops 30%+ from backtest → STOP and analyze
-- Don't be stubborn with strategies that don't work
-
-### 4. **Mental Game**
-- Drawdown is NORMAL - don't panic
-- 10 consecutive losses can happen - be mentally prepared
-- Greed will kill your account - stick to the plan
-- FOMO is the enemy - don't overtrade
-
-### 5. **Continuous Learning**
-- Market Microstructure
-- Order Flow Analysis
-- Liquidity Patterns
-- News Impact
-- Correlation Trading
-
----
-
-## ADVANCED CONCEPTS (Beyond Basic EA)
-
-### Machine Learning Integration (Simplified)
-
-For ML in MQL5, the concept is:
-1. **Feature Engineering** - Collect market data (MA, RSI, Volume, Volatility)
-2. **Train Model** - Use Python/R for training
-3. **Export Model** - Convert to format that MQL5 can read
-4. **Inference** - EA predicts using the model
-
-**Simple ML Feature Collection Example:**
-```mql5
-//+------------------------------------------------------------------+
-//| Collect features for ML                                           |
-//+------------------------------------------------------------------+
-
-// Global indicator handles (create in OnInit)
-int handleFastMA, handleSlowMA, handleRSI, handleATR, handleBB;
-double maFastBuffer[], maSlowBuffer[], rsiBuffer[], atrBuffer[];
-double bbUpperBuffer[], bbLowerBuffer[], bbMiddleBuffer[];
-
-int OnInit()
-{
-   // Create indicator handles once
-   handleFastMA = iMA(_Symbol, PERIOD_CURRENT, 10, 0, MODE_EMA, PRICE_CLOSE);
-   handleSlowMA = iMA(_Symbol, PERIOD_CURRENT, 30, 0, MODE_EMA, PRICE_CLOSE);
-   handleRSI = iRSI(_Symbol, PERIOD_CURRENT, 14, PRICE_CLOSE);
-   handleATR = iATR(_Symbol, PERIOD_CURRENT, 14);
-   handleBB = iBands(_Symbol, PERIOD_CURRENT, 20, 0, 2, PRICE_CLOSE);
-   
-   // Set arrays as series
-   ArraySetAsSeries(maFastBuffer, true);
-   ArraySetAsSeries(maSlowBuffer, true);
-   ArraySetAsSeries(rsiBuffer, true);
-   ArraySetAsSeries(atrBuffer, true);
-   ArraySetAsSeries(bbUpperBuffer, true);
-   ArraySetAsSeries(bbLowerBuffer, true);
-   ArraySetAsSeries(bbMiddleBuffer, true);
-   
-   return INIT_SUCCEEDED;
-}
-
-void OnDeinit(const int reason)
-{
-   // Release indicator handles
-   if(handleFastMA != INVALID_HANDLE) IndicatorRelease(handleFastMA);
-   if(handleSlowMA != INVALID_HANDLE) IndicatorRelease(handleSlowMA);
-   if(handleRSI != INVALID_HANDLE) IndicatorRelease(handleRSI);
-   if(handleATR != INVALID_HANDLE) IndicatorRelease(handleATR);
-   if(handleBB != INVALID_HANDLE) IndicatorRelease(handleBB);
-}
-
-// Collect features - pass by reference
-void CollectFeatures(double &features[], int shift = 0)
-{
-   ArrayResize(features, 9); // 9 features (not 10)
-   
-   // Copy indicator values
-   if(CopyBuffer(handleFastMA, 0, shift, 1, maFastBuffer) <= 0) return;
-   if(CopyBuffer(handleSlowMA, 0, shift, 1, maSlowBuffer) <= 0) return;
-   if(CopyBuffer(handleRSI, 0, shift, 1, rsiBuffer) <= 0) return;
-   if(CopyBuffer(handleATR, 0, shift, 1, atrBuffer) <= 0) return;
-   if(CopyBuffer(handleBB, 0, shift, 1, bbUpperBuffer) <= 0) return;
-   if(CopyBuffer(handleBB, 1, shift, 1, bbMiddleBuffer) <= 0) return;
-   if(CopyBuffer(handleBB, 2, shift, 1, bbLowerBuffer) <= 0) return;
-   
-   double fastMA = maFastBuffer[0];
-   double slowMA = maSlowBuffer[0];
-   double currentClose = iClose(_Symbol, PERIOD_CURRENT, shift);
-   
-   // Feature 0-1: MA values (with safety check)
-   if(slowMA != 0)
-      features[0] = (fastMA - slowMA) / slowMA; // Normalized difference
-   else
-      features[0] = 0;
-   
-   if(fastMA != 0)
-      features[1] = (currentClose - fastMA) / fastMA;
-   else
-      features[1] = 0;
-   
-   // Feature 2: RSI (normalized around 50)
-   double rsi = rsiBuffer[0];
-   features[2] = (rsi - 50) / 50;
-   
-   // Feature 3: ATR (Volatility)
-   double atr = atrBuffer[0];
-   double avgPrice = (iHigh(_Symbol, PERIOD_CURRENT, shift) + iLow(_Symbol, PERIOD_CURRENT, shift)) / 2;
-   if(avgPrice != 0)
-      features[3] = atr / avgPrice; // Normalized volatility
-   else
-      features[3] = 0;
-   
-   // Feature 4: Volume
-   long volume = iVolume(_Symbol, PERIOD_CURRENT, shift);
-   long avgVolume = 0;
-   for(int i = 1; i <= 20; i++)
-      avgVolume += iVolume(_Symbol, PERIOD_CURRENT, shift + i);
-   avgVolume /= 20;
-   
-   if(avgVolume != 0)
-      features[4] = (double)(volume - avgVolume) / avgVolume;
-   else
-      features[4] = 0;
-   
-   // Feature 5-6: Price momentum (with bar existence check)
-   if(Bars(_Symbol, PERIOD_CURRENT) > shift + 20)
-   {
-      double price5 = iClose(_Symbol, PERIOD_CURRENT, shift + 5);
-      double price20 = iClose(_Symbol, PERIOD_CURRENT, shift + 20);
-      
-      if(price5 != 0)
-         features[5] = (currentClose - price5) / price5;
-      else
-         features[5] = 0;
-      
-      if(price20 != 0)
-         features[6] = (currentClose - price20) / price20;
-      else
-         features[6] = 0;
-   }
-   else
-   {
-      features[5] = 0;
-      features[6] = 0;
-   }
-   
-   // Feature 7: Bollinger Band position
-   double bbUpper = bbUpperBuffer[0];
-   double bbLower = bbLowerBuffer[0];
-   double bbWidth = bbUpper - bbLower;
-   
-   if(bbWidth > 0)
-      features[7] = (currentClose - bbLower) / bbWidth;
-   else
-      features[7] = 0.5;
-   
-   // Feature 8: Time of day (normalized)
-   MqlDateTime dt;
-   TimeToStruct(TimeCurrent(), dt);
-   features[8] = (double)dt.hour / 24.0;
-}
-
-// Usage in OnTick
-void OnTick()
-{
-   double features[];
-   CollectFeatures(features, 0); // Get features for current bar
-   
-   // Now use features[] for ML prediction
-   // ...
-}
-```
-
----
-
-## CONCLUSION
-
-A good EA is NOT one that makes 1000% profit in a month. A good EA is one that:
-1. **Survives** - Doesn't go bankrupt
-2. **Consistent** - Steady profit, not spikes
-3. **Robust** - Works in various market conditions
-4. **Simple** - Complex != Better
-5. **Tested** - Thousands of hours in backtesting and demo
-
-**Remember:**
-- 90% of traders fail not because of bad strategy, but because of POOR RISK MANAGEMENT
-- EA is just a tool - not a money machine
-- Markets don't owe you anything - respect the market
-- Survival > Profit
-
-Good luck, trade safe, and never risk money you can't afford to lose! 🚀
-
----
-
-## WHEN TO USE THIS SKILL
-
-This skill should be used when:
-- User wants to create a new Expert Advisor from scratch
-- User wants to optimize existing trading strategy
-- User needs help with advanced MQL5 concepts (grid, martingale, MTF)
-- User wants professional money management implementation
-- User needs backtesting and validation guidance
-- User asks about survival strategies for live trading
-- User wants to convert trading idea into code
+Use this skill when:
+- Creating a new Expert Advisor, indicator, script, or library from scratch
+- Optimizing or refactoring existing MQL5 code
+- Implementing advanced strategies (CRT, SMC, ICT, Asian Range, etc.)
+- Adding prop firm compliance modules
+- Adding dashboard, alerts, CSV logging, Telegram integration
+- Backtesting guidance, validation, and optimization setup
+- Converting trading ideas into complete, compilable MQL5 code
+- Debugging compilation errors or logic issues in MQL5
 
 **AI-Specific Notes:**
-- **Claude:** Will automatically reference this skill from skills directory
+- **Claude:** Automatically loads this skill from the skills directory
 - **ChatGPT:** Use as Custom GPT knowledge base or system instructions
 - **Gemini:** Include in conversation context or as extension data
-- **Other AI:** Provide relevant sections in prompt/context
+- **Other AI:** Provide relevant sections as prompt context
 
-Always prioritize:
-1. Risk management over profit maximization
-2. Robustness over complexity
-3. Testing over deployment
-4. Capital preservation over returns
-
-Focus on creating EA that can SURVIVE, not just EA that look good in backtest.
+**Core Principle: Capital preservation over maximum returns. Survival > Profit.**

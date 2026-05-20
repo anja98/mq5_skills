@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-05-20
+
+### Added
+- 16-section structured skill replacing the original 4-section layout.
+- 12 canonical MQL5 patterns: handle lifecycle, risk calc, BE, trailing, partial close, pre-flight check, etc.
+- Strategy frameworks: CRT, SMC (BOS/FVG/OB), ICT (kill zones, Silver Bullet), Asian Range, MTF confluence.
+- Production-grade prop firm safety module (FTMO, The5%ers, E8 compatible).
+- `CDashboard` OOP class for CChartObject panels.
+- `CTradeLogger` OOP class for CSV trade journal.
+- Custom `OnTester()` composite metric for Strategy Tester optimization.
+- 8 new ready-to-use example prompts (CRT, SMC OB+FVG, ICT Silver Bullet, Asian Range, Safe Grid, Custom Indicator).
+- Expanded pitfall table from 9 to 14 items with wrong/correct comparisons.
+- Pre-code requirements checklist expanded to 28 questions.
+
+### Changed
+- SKILL.md version 1.2.0 → 2.0.0.
+- evals.json version 1.2.0 → 2.0.0.
+- `templates/ea-blueprint.md` rewritten with full section ordering, naming table, multi-file layout.
+- README updated to reflect v2.0.0 improvements.
+
+### Removed
+- `docs/reports/COMPLETION_REPORT.md` — internal development note, not user-facing.
+- `docs/reports/FIX_SUMMARY.md` — internal fix notes, not user-facing.
+- `docs/GITHUB_DESCRIPTIONS.md` — meta marketing copy, not skill content.
+- `docs/UPLOAD_GUIDE.md` — content consolidated into `docs/AI_SETUP_GUIDE.md`.
+
+## [1.2.0] - 2026-05-20
+
+### Added
+- Structured repository layout: `docs/`, `examples/`, `templates/`, `tools/`.
+- Reusable EA generation blueprint in `templates/ea-blueprint.md`.
+- Copy-paste prompt library in `examples/prompts/README.md`.
+- Lightweight validation script: `tools/validate_repo.py`.
+- Project roadmap and contribution guide.
+
+### Changed
+- README now reflects current project structure and validation workflow.
+- Operational reports moved under `docs/reports/`.
+
 ## [1.1.0] - 2026-02-12
 
 ### Fixed - Critical Compile Errors

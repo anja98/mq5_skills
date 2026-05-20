@@ -1,6 +1,6 @@
 # MQL5 EA Expert - Professional AI Skill
 
-> **Version 1.1.0** | Universal AI skill for creating production-ready MetaTrader 5 Expert Advisors with a survival-first approach.
+> **Version 2.0.0** | Universal AI skill for creating production-ready MetaTrader 5 Expert Advisors with a survival-first approach.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MQL5](https://img.shields.io/badge/MQL5-Expert_Advisor-blue.svg)](https://www.mql5.com)
@@ -52,16 +52,15 @@ Expected: Compile-ready `.mq5` file with proper risk management ✅
 
 ```
 mql5-ea-expert/
-├── SKILL.md              # Core AI skill (load this into your AI)
-├── evals.json            # 8 test cases for skill validation
-├── .gitignore
-├── CHANGELOG.md          # Version history
-├── LICENSE               # MIT + Trading Disclaimer
-├── README.md             # You are here
-├── FIX_SUMMARY.md        # Technical review results
-├── AI_SETUP_GUIDE.md     # Platform-specific setup instructions
-├── UPLOAD_GUIDE.md       # How to upload to GitHub
-└── GITHUB_DESCRIPTIONS.md # SEO descriptions
+├── SKILL.md                  # Core AI skill
+├── evals.json                # Skill validation cases
+├── README.md                 # Project overview
+├── CHANGELOG.md              # Version history
+├── LICENSE                   # MIT + trading disclaimer
+├── docs/                     # Guides and reports
+├── examples/prompts/         # Copy-paste EA prompts
+├── templates/                # Reusable EA blueprints
+└── tools/                    # Validation utilities
 ```
 
 ---
@@ -114,7 +113,7 @@ The skill instructs AI to:
 
 ## 🧪 Validation
 
-8 test cases covering:
+9 test cases covering:
 1. Simple MA crossover with full risk management
 2. Multi-timeframe alignment strategy
 3. Safe grid system (max levels, DD protection)
@@ -122,7 +121,8 @@ The skill instructs AI to:
 5. Backtest validator (metrics calculation)
 6. Survival-focused EA (all protections combined)
 7. Martingale with safety caps (refuses dangerous configs)
-8. Strategy with multiple filters (spread, time, volatility)
+8. Strategy with multiple filters (spread, time, volatility, news)
+9. Adversarial test — refuses when user asks to remove all safety
 
 Run test:
 ```
@@ -161,22 +161,37 @@ Run test:
 
 ## 📖 Documentation
 
-- **[AI Setup Guide](AI_SETUP_GUIDE.md)** - Platform-specific instructions
-- **[Upload Guide](UPLOAD_GUIDE.md)** - How to upload this repo to GitHub
-- **[Changelog](CHANGELOG.md)** - Version history and fixes
-- **[Fix Summary](FIX_SUMMARY.md)** - Technical review report
+- **[AI Setup Guide](docs/AI_SETUP_GUIDE.md)** - Platform-specific instructions (Claude, ChatGPT, Gemini)
+- **[Example Prompts](examples/prompts/README.md)** - Ready-to-use generation prompts (CRT, SMC, ICT, Asian Range, etc.)
+- **[EA Blueprint](templates/ea-blueprint.md)** - Standard structure for generated EAs
+- **[Roadmap](docs/ROADMAP.md)** - Planned improvements
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[Contributing](CONTRIBUTING.md)** - Contribution workflow
+
+---
+
+## ✅ Local Validation
+
+```bash
+python tools/validate_repo.py
+```
+
+Checks required files, `SKILL.md` frontmatter, `evals.json`, and README links.
 
 ---
 
 ## 🛠️ Technical Details
 
-### Version 1.1.0 Fixes
-- ✅ Fixed all compile-breaking MQL5 errors
-- ✅ Corrected indicator handle usage (iMA, iRSI, iATR, iBands)
-- ✅ Fixed CTrade API signatures (PositionModify, PositionClose)
-- ✅ Fixed pointer syntax in examples
-- ✅ Added AI Response Contract
-- ✅ Converted to English for universal compatibility
+### Version 2.0.0 — Major Upgrade
+- ✅ 16-section structured skill (vs 4 sections before)
+- ✅ 12 canonical MQL5 patterns (handle lifecycle, risk calc, BE, trailing, partial close, etc.)
+- ✅ Strategy frameworks: CRT, SMC, ICT, Asian Range, MTF confluence
+- ✅ Production-grade prop firm safety module (FTMO, The5%ers, E8)
+- ✅ OOP classes: CDashboard, CTradeLogger, CBacktestValidator
+- ✅ Custom OnTester() composite metric
+- ✅ 14-item pitfall table with wrong vs correct patterns
+- ✅ 8 ready-to-use example prompts (CRT, SMC OB+FVG, ICT Silver Bullet, Asian Range, etc.)
+- ✅ Cleaned repo structure — removed redundant internal reports
 
 ### Requirements
 - MetaTrader 5 terminal
@@ -220,4 +235,4 @@ Found a bug? Have an improvement?
 
 **Made with ❤️ for traders who prioritize survival over profit**
 
-*Last updated: February 12, 2026*
+*Last updated: May 20, 2026*
