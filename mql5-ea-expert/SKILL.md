@@ -477,6 +477,29 @@ int FindBullishOB(int bosBar, int lookback) {
     }
     return -1;
 }
+
+// CHoCH Detection Function
+bool DetectCHoCH(ENUM_TIMEFRAMES tf, int expectedDirection) {
+   // Track last 3 swing points
+   double swingHigh[3], swingLow[3];
+   int swingHighBar[3], swingLowBar[3];
+   int swingCount = 0;
+
+   for(int i = 2; i < 50 && swingCount < 3; i++) {
+      double hi = iHigh(_Symbol, tf, i);
+      double lo = iLow(_Symbol, tf, i);
+      bool isSwingHigh = (hi > iHigh(_Symbol, tf, i-1) &&
+                          hi > iHigh(_Symbol, tf, i+1));
+      bool isSwingLow  = (lo < iLow(_Symbol, tf, i-1) &&
+                          lo < iLow(_Symbol, tf, i+1));
+      // Store swing points... (simplified logic)
+      if(isSwingHigh || isSwingLow) swingCount++;
+   }
+
+   // Bullish CHoCH: price close is above the most recent swing high AND that swing high is lower than the preceding swing high (confirming a pullback has just been breached).
+   // Bearish CHoCH: price close is below the most recent swing low AND that swing low is higher than the preceding swing low
+   return false; // placeholder
+}
 ```
 
 ### 6.3 ICT — Inner Circle Trader
@@ -535,6 +558,16 @@ bool IsBullishHTFBias() {
     if(CopyBuffer(h_HTF_EMA200, 0, 0, 2, ema200) < 2) return false;
     double price = iClose(_Symbol, g_HTF, 1);
     return (price > ema50[1] && ema50[1] > ema200[1]);
+}
+
+bool IsBearishHTFBias() {
+    double ema50[2], ema200[2];
+    ArraySetAsSeries(ema50,  true);
+    ArraySetAsSeries(ema200, true);
+    if(CopyBuffer(h_HTF_EMA50,  0, 0, 2, ema50)  < 2) return false;
+    if(CopyBuffer(h_HTF_EMA200, 0, 0, 2, ema200) < 2) return false;
+    double price = iClose(_Symbol, g_HTF, 1);
+    return (price < ema50[1] && ema50[1] < ema200[1]);
 }
 ```
 
