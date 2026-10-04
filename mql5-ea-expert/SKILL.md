@@ -9,7 +9,7 @@ tags: [mql5, metatrader5, expert-advisor, trading, forex, risk-management, algor
 scope_limits: This skill teaches MQL5 development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions.
 ---
 
-# MQL5 Expert Advisor Development — Professional Guide v2.1
+# MQL5 Expert Advisor Development — Professional Guide v2.0
 
 You are a world-class MQL5 architect and quant developer with 15+ years of professional experience building institutional-grade Expert Advisors, custom indicators, libraries, and trading frameworks for MetaTrader 5. You combine algorithmic precision with deep market microstructure knowledge — you code like a software engineer and think like a prop-desk quantitative trader.
 
@@ -418,26 +418,44 @@ bool IsTradeAllowed() {
 ```
 
 ### 5.13 Hedge Position
-Opens ONE opposite-direction hedge when price moves `InpHedgeTriggerPips` against the entry.
-**Hedge TP = entry SL, Hedge SL = entry TP.** Hedging accounts only.
+Opens an opposite-direction hedge whenever price moves `InpHedgeTriggerPips` against the entry
+and that entry has no hedge currently open. If a hedge stops out at entry price and price drops
+again, the entry is re-hedged — one ACTIVE hedge per entry at a time, unlimited re-hedges.
+**Hedge TP = entry SL, Hedge SL = entry open price.** Hedging accounts only.
+**Hedge break-even:** once a hedge is `InpHedgeBEPips` in profit, its SL moves to the hedge's own open price.
 Pre-flight (`IsTradeAllowed()`, `IsSpreadOK()`) is the caller's responsibility — do not repeat it here.
 ```mql5
 input group "=== TRADE MANAGEMENT ==="
 input double InpHedgeTriggerPips = 20.0;   // Adverse pips from entry before hedging
 input double InpHedgeLotMult     = 1.0;    // Hedge lots = entry lots x this (max 1.5)
 input ulong  InpHedgeMagic       = 12346;  // Magic for hedge trades (MUST differ from InpMagicNumber)
+input double InpHedgeBEPips      = 20.0;   // Hedge profit in pips before SL moves to break-even (0 = off)
 
 #define HEDGE_MAX_LOT_MULT 1.5
 
-// Persistent per-entry flag (terminal global variable): hedge once only, survives EA reloads
-string HedgeFlagName(ulong ticket) {
-    return "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_" + IntegerToString((long)ticket);
+// Hedge comment links each hedge to its entry ticket
+string HedgeComment(ulong ticket) {
+    return "HEDGE#" + IntegerToString((long)ticket);
+}
+
+// True if a hedge for this entry is currently open.
+// Based on live positions, so it survives EA reloads and terminal restarts.
+// NOTE: changes the selected position — call before PositionSelectByTicket(entry).
+bool HasActiveHedge(ulong ticket) {
+    string cmt = HedgeComment(ticket);
+    for(int i = PositionsTotal() - 1; i >= 0; i--) {
+        ulong t = PositionGetTicket(i);
+        if(t == 0 || !PositionSelectByTicket(t)) continue;
+        if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic) continue;
+        if(PositionGetString(POSITION_COMMENT) == cmt) return true;
+    }
+    return false;
 }
 
 // Returns true only when a hedge was opened for this ticket
 bool HedgePosition(ulong ticket) {
     if(AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING) return false;
-    if(GlobalVariableCheck(HedgeFlagName(ticket)))                 return false;   // already hedged
+    if(HasActiveHedge(ticket))                                     return false;   // hedge already open
     if(!PositionSelectByTicket(ticket))                            return false;
     if((ulong)PositionGetInteger(POSITION_MAGIC) == InpHedgeMagic) return false;   // never hedge a hedge
 
@@ -445,9 +463,8 @@ bool HedgePosition(ulong ticket) {
     ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
     double openPx = PositionGetDouble(POSITION_PRICE_OPEN);
     double entSL  = PositionGetDouble(POSITION_SL);
-    double entTP  = PositionGetDouble(POSITION_TP);
     double vol    = PositionGetDouble(POSITION_VOLUME);
-    if(entSL <= 0 || entTP <= 0) return false;                     // need both to mirror
+    if(entSL <= 0) return false;                                   // entry SL needed for hedge TP
 
     int    digits  = (int)SymbolInfoInteger(sym, SYMBOL_DIGITS);
     double point   = SymbolInfoDouble(sym, SYMBOL_POINT);
@@ -463,7 +480,7 @@ bool HedgePosition(ulong ticket) {
     if(!isBuy && px < openPx + trigger) return false;              // SELL entry: not yet trigger pips up
 
     double hTP = NormalizeDouble(entSL, digits);                   // hedge TP = entry SL
-    double hSL = NormalizeDouble(entTP, digits);                   // hedge SL = entry TP
+    double hSL = NormalizeDouble(openPx, digits);                  // hedge SL = entry open price
 
     // Broker stops / freeze level check
     double minDist = (double)MathMax(SymbolInfoInteger(sym, SYMBOL_TRADE_STOPS_LEVEL),
@@ -487,7 +504,7 @@ bool HedgePosition(ulong ticket) {
     hedgeTrade.SetAsyncMode(false);
     hedgeTrade.LogLevel(LOG_LEVEL_ERRORS);
 
-    string cmt = "HEDGE#" + IntegerToString((long)ticket);
+    string cmt = HedgeComment(ticket);
     bool ok = isBuy ? hedgeTrade.Sell(lots, sym, px, hSL, hTP, cmt)
                     : hedgeTrade.Buy(lots,  sym, px, hSL, hTP, cmt);
     uint rc = hedgeTrade.ResultRetcode();
@@ -495,27 +512,60 @@ bool HedgePosition(ulong ticket) {
         Print("[ERROR] Hedge #", ticket, " failed: ", hedgeTrade.ResultRetcodeDescription(), " | Code: ", rc);
         return false;
     }
-    if(GlobalVariableSet(HedgeFlagName(ticket), (double)hedgeTrade.ResultOrder()) == 0)
-        Print("[ERROR] Hedge flag not saved for #", ticket, " — duplicate hedge risk");
     Print("[ENTRY] HEDGE #", ticket, " -> ", (isBuy ? "SELL " : "BUY "), lots,
           " @ ", DoubleToString(px, digits), " SL ", DoubleToString(hSL, digits),
           " TP ", DoubleToString(hTP, digits));
     return true;
 }
 
-// Remove flags of entries that are no longer open
-void CleanupHedgeFlags() {
-    string prefix = "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_";
-    for(int i = GlobalVariablesTotal() - 1; i >= 0; i--) {
-        string name = GlobalVariableName(i);
-        if(StringFind(name, prefix) != 0) continue;
-        ulong ticket = (ulong)StringToInteger(StringSubstr(name, StringLen(prefix)));
-        if(ticket > 0 && !PositionSelectByTicket(ticket)) GlobalVariableDel(name);
+// Move a hedge's SL to its own open price once it is InpHedgeBEPips in profit
+void HedgeBreakEven(ulong hedgeTicket) {
+    if(InpHedgeBEPips <= 0) return;                                // feature off
+    if(!PositionSelectByTicket(hedgeTicket)) return;
+    if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic) return;   // hedges only
+
+    string sym    = PositionGetString(POSITION_SYMBOL);
+    ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
+    double openPx = PositionGetDouble(POSITION_PRICE_OPEN);
+    double curSL  = PositionGetDouble(POSITION_SL);
+    double curTP  = PositionGetDouble(POSITION_TP);
+
+    int    digits = (int)SymbolInfoInteger(sym, SYMBOL_DIGITS);
+    double point  = SymbolInfoDouble(sym, SYMBOL_POINT);
+    double pip    = (digits == 3 || digits == 5) ? point * 10 : point;
+    double beTrig = InpHedgeBEPips * pip;
+    double newSL  = NormalizeDouble(openPx, digits);
+    double minDist = (double)MathMax(SymbolInfoInteger(sym, SYMBOL_TRADE_STOPS_LEVEL),
+                                     SymbolInfoInteger(sym, SYMBOL_TRADE_FREEZE_LEVEL)) * point;
+
+    MqlTick tick;
+    if(!SymbolInfoTick(sym, tick)) return;
+
+    if(pType == POSITION_TYPE_SELL) {                              // SELL hedge closes at Ask
+        if(tick.ask > openPx - beTrig)      return;                // not yet InpHedgeBEPips in profit
+        if(curSL > 0 && curSL <= newSL)     return;                // already at / beyond break-even
+        if(newSL - tick.ask < minDist)      return;                // inside stops level
+    } else {                                                       // BUY hedge closes at Bid
+        if(tick.bid < openPx + beTrig)      return;
+        if(curSL >= newSL)                  return;
+        if(tick.bid - newSL < minDist)      return;
     }
+
+    CTrade hedgeTrade;
+    hedgeTrade.SetExpertMagicNumber(InpHedgeMagic);
+    hedgeTrade.SetAsyncMode(false);
+    hedgeTrade.LogLevel(LOG_LEVEL_ERRORS);
+    if(!hedgeTrade.PositionModify(hedgeTicket, newSL, curTP)) {
+        Print("[ERROR] Hedge BE #", hedgeTicket, " failed: ", hedgeTrade.ResultRetcodeDescription(),
+              " | Code: ", hedgeTrade.ResultRetcode());
+        return;
+    }
+    Print("[BE] Hedge #", hedgeTicket, " SL moved to break-even ", DoubleToString(newSL, digits));
 }
 
-// OnTick — every tick (not new bar) so the trigger is not missed
+// OnTick — every tick (not new bar) so neither trigger is missed
 void ManageHedges() {
+    // 1) Open hedges for entries that need one
     for(int i = PositionsTotal() - 1; i >= 0; i--) {             // backwards: new hedges append at the end
         ulong ticket = PositionGetTicket(i);
         if(!PositionSelectByTicket(ticket)) continue;
@@ -523,7 +573,14 @@ void ManageHedges() {
         if((ulong)PositionGetInteger(POSITION_MAGIC) != InpMagicNumber)   continue;
         HedgePosition(ticket);
     }
-    CleanupHedgeFlags();
+    // 2) Move profitable hedges to break-even
+    for(int i = PositionsTotal() - 1; i >= 0; i--) {
+        ulong ticket = PositionGetTicket(i);
+        if(!PositionSelectByTicket(ticket)) continue;
+        if(PositionGetString(POSITION_SYMBOL) != _Symbol)                 continue;
+        if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic)    continue;
+        HedgeBreakEven(ticket);
+    }
 }
 ```
 
@@ -535,10 +592,10 @@ if(AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING
 if(InpHedgeMagic == InpMagicNumber) {
     Print("[ERROR] InpHedgeMagic must differ from InpMagicNumber"); return INIT_PARAMETERS_INCORRECT;
 }
-if(InpHedgeTriggerPips <= 0 || InpHedgeLotMult <= 0) return INIT_PARAMETERS_INCORRECT;
+if(InpHedgeTriggerPips <= 0 || InpHedgeLotMult <= 0 || InpHedgeBEPips < 0) return INIT_PARAMETERS_INCORRECT;
 ```
 
-> **Hedge Warnings:** At `InpHedgeLotMult = 1.0` the hedge locks the trade at roughly `−(trigger pips + spread)` whichever way price goes next — it caps loss and also removes upside · Multiplier > 1.0 flips net exposure to the hedge direction (hard cap 1.5) · `InpHedgeTriggerPips` must be smaller than the entry SL distance or the SL hits first · Entry SL/TP trigger on one side of the spread and the hedge's on the other, so the two legs may close a moment apart · Netting accounts: an opposite order closes the entry — never run this module there.
+> **Hedge Warnings:** At `InpHedgeLotMult = 1.0`, if price continues to the entry SL the combined loss is capped at roughly `trigger pips + spread`; if price recovers to the entry price the hedge stops out for about the same loss and the entry is left to run to its TP · Re-hedging: every hedge that stops out at entry price costs roughly `trigger pips + spread`, so a market that chops around the trigger level can stack repeated small losses on one entry — consider capping re-hedges per entry if this matters · Hedge break-even: once moved, a reversal closes the hedge at ~0 (minus spread/commission) instead of at entry price; because the hedge open price sits near the trigger level, the entry is usually re-hedged almost immediately if price drops again · `InpHedgeBEPips` should be smaller than the distance from hedge open to entry SL, or the hedge reaches TP first · A hedge SL at entry triggers on the opposite side of the spread, so wide spreads can stop the hedge slightly before price truly returns to entry · Multiplier > 1.0 flips net exposure to the hedge direction (hard cap 1.5) · `InpHedgeTriggerPips` must be smaller than the entry SL distance or the SL hits first · Entry SL/TP trigger on one side of the spread and the hedge's on the other, so the two legs may close a moment apart · Netting accounts: an opposite order closes the entry — never run this module there.
 
 ---
 
