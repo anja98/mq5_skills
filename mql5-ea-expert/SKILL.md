@@ -423,6 +423,9 @@ and that entry has no hedge currently open. If a hedge stops out at entry price 
 again, the entry is re-hedged — one ACTIVE hedge per entry at a time, unlimited re-hedges.
 **Hedge TP = entry SL, Hedge SL = entry open price.** Hedging accounts only.
 **Hedge break-even:** once a hedge is `InpHedgeBEPips` in profit, its SL moves to the hedge's own open price.
+**Spread-aware re-arm:** after a hedge opens, the entry is disarmed. It is re-armed only when price retraces
+back past the trigger level by `current spread + InpHedgeRearmPips`. This stops a hedge closed at break-even
+(Ask back at hedge open = Bid still beyond trigger) from re-firing on the very next tick.
 Pre-flight (`IsTradeAllowed()`, `IsSpreadOK()`) is the caller's responsibility — do not repeat it here.
 ```mql5
 input group "=== TRADE MANAGEMENT ==="
@@ -430,12 +433,30 @@ input double InpHedgeTriggerPips = 20.0;   // Adverse pips from entry before hed
 input double InpHedgeLotMult     = 1.0;    // Hedge lots = entry lots x this (max 1.5)
 input ulong  InpHedgeMagic       = 12346;  // Magic for hedge trades (MUST differ from InpMagicNumber)
 input double InpHedgeBEPips      = 20.0;   // Hedge profit in pips before SL moves to break-even (0 = off)
+input double InpHedgeRearmPips   = 5.0;    // Extra pips (on top of spread) price must retrace before re-hedging
 
 #define HEDGE_MAX_LOT_MULT 1.5
 
 // Hedge comment links each hedge to its entry ticket
 string HedgeComment(ulong ticket) {
     return "HEDGE#" + IntegerToString((long)ticket);
+}
+
+// Per-entry "disarmed" flag (terminal global variable): set when a hedge opens,
+// cleared when price retraces past the re-arm level. Survives EA reloads.
+string HedgeArmFlag(ulong ticket) {
+    return "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_" + IntegerToString((long)ticket);
+}
+
+// Remove flags of entries that are no longer open
+void CleanupHedgeFlags() {
+    string prefix = "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_";
+    for(int i = GlobalVariablesTotal() - 1; i >= 0; i--) {
+        string name = GlobalVariableName(i);
+        if(StringFind(name, prefix) != 0) continue;
+        ulong ticket = (ulong)StringToInteger(StringSubstr(name, StringLen(prefix)));
+        if(ticket > 0 && !PositionSelectByTicket(ticket)) GlobalVariableDel(name);
+    }
 }
 
 // True if a hedge for this entry is currently open.
@@ -476,6 +497,21 @@ bool HedgePosition(ulong ticket) {
 
     bool   isBuy = (pType == POSITION_TYPE_BUY);
     double px    = isBuy ? tick.bid : tick.ask;                    // hedge fills on opposite side
+
+    // Spread-aware re-arm: after a hedge, wait until price retraces past
+    // trigger level + spread + buffer before allowing the next hedge
+    string flag = HedgeArmFlag(ticket);
+    if(GlobalVariableCheck(flag)) {
+        double rearmDist = trigger - (tick.ask - tick.bid) - InpHedgeRearmPips * pip;
+        bool rearmed = isBuy ? (px >= openPx - rearmDist)          // BUY entry: Bid back above level
+                             : (px <= openPx + rearmDist);         // SELL entry: Ask back below level
+        if(rearmed) {
+            GlobalVariableDel(flag);
+            Print("[INFO] Hedge re-armed for #", ticket);
+        }
+        return false;                                              // never re-arm and fire on the same tick
+    }
+
     if(isBuy  && px > openPx - trigger) return false;              // BUY entry: not yet trigger pips down
     if(!isBuy && px < openPx + trigger) return false;              // SELL entry: not yet trigger pips up
 
@@ -512,6 +548,8 @@ bool HedgePosition(ulong ticket) {
         Print("[ERROR] Hedge #", ticket, " failed: ", hedgeTrade.ResultRetcodeDescription(), " | Code: ", rc);
         return false;
     }
+    if(GlobalVariableSet(flag, 1.0) == 0)                          // disarm until price retraces
+        Print("[WARN] Hedge disarm flag not saved for #", ticket, " — may re-hedge too early");
     Print("[ENTRY] HEDGE #", ticket, " -> ", (isBuy ? "SELL " : "BUY "), lots,
           " @ ", DoubleToString(px, digits), " SL ", DoubleToString(hSL, digits),
           " TP ", DoubleToString(hTP, digits));
@@ -581,6 +619,8 @@ void ManageHedges() {
         if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic)    continue;
         HedgeBreakEven(ticket);
     }
+    // 3) Drop re-arm flags of closed entries
+    CleanupHedgeFlags();
 }
 ```
 
@@ -592,10 +632,11 @@ if(AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING
 if(InpHedgeMagic == InpMagicNumber) {
     Print("[ERROR] InpHedgeMagic must differ from InpMagicNumber"); return INIT_PARAMETERS_INCORRECT;
 }
-if(InpHedgeTriggerPips <= 0 || InpHedgeLotMult <= 0 || InpHedgeBEPips < 0) return INIT_PARAMETERS_INCORRECT;
+if(InpHedgeTriggerPips <= 0 || InpHedgeLotMult <= 0 || InpHedgeBEPips < 0 || InpHedgeRearmPips < 0)
+    return INIT_PARAMETERS_INCORRECT;
 ```
 
-> **Hedge Warnings:** At `InpHedgeLotMult = 1.0`, if price continues to the entry SL the combined loss is capped at roughly `trigger pips + spread`; if price recovers to the entry price the hedge stops out for about the same loss and the entry is left to run to its TP · Re-hedging: every hedge that stops out at entry price costs roughly `trigger pips + spread`, so a market that chops around the trigger level can stack repeated small losses on one entry — consider capping re-hedges per entry if this matters · Hedge break-even: once moved, a reversal closes the hedge at ~0 (minus spread/commission) instead of at entry price; because the hedge open price sits near the trigger level, the entry is usually re-hedged almost immediately if price drops again · `InpHedgeBEPips` should be smaller than the distance from hedge open to entry SL, or the hedge reaches TP first · A hedge SL at entry triggers on the opposite side of the spread, so wide spreads can stop the hedge slightly before price truly returns to entry · Multiplier > 1.0 flips net exposure to the hedge direction (hard cap 1.5) · `InpHedgeTriggerPips` must be smaller than the entry SL distance or the SL hits first · Entry SL/TP trigger on one side of the spread and the hedge's on the other, so the two legs may close a moment apart · Netting accounts: an opposite order closes the entry — never run this module there.
+> **Hedge Warnings:** At `InpHedgeLotMult = 1.0`, if price continues to the entry SL the combined loss is capped at roughly `trigger pips + spread`; if price recovers to the entry price the hedge stops out for about the same loss and the entry is left to run to its TP · Re-hedging: every hedge that stops out at entry price costs roughly `trigger pips + spread`, so a market that chops around the trigger level can stack repeated small losses on one entry — consider capping re-hedges per entry if this matters · Hedge break-even: once moved, a reversal closes the hedge at ~0 (minus spread/commission) instead of at entry price; the spread-aware re-arm then requires price to retrace `spread + InpHedgeRearmPips` back past the trigger level before the entry can be hedged again — set `InpHedgeRearmPips` too low and choppy price can still churn hedges, too high and a fast second drop goes unhedged · `InpHedgeBEPips` should be smaller than the distance from hedge open to entry SL, or the hedge reaches TP first · A hedge SL at entry triggers on the opposite side of the spread, so wide spreads can stop the hedge slightly before price truly returns to entry · Multiplier > 1.0 flips net exposure to the hedge direction (hard cap 1.5) · `InpHedgeTriggerPips` must be smaller than the entry SL distance or the SL hits first · Entry SL/TP trigger on one side of the spread and the hedge's on the other, so the two legs may close a moment apart · Netting accounts: an opposite order closes the entry — never run this module there.
 
 ---
 
