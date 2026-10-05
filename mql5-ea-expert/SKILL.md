@@ -1,11 +1,22 @@
 ---
 name: mql5-ea-expert
-version: 2.1.0
+version: '2.2.0'
 language: en-US
 description: World-class MQL5 architect skill for MetaTrader 5. Covers zero-error EA/indicator/script/library development, institutional-grade patterns (CRT, SMC, ICT), prop-firm safety module, ATR risk engine, dashboard panels, CSV logger, multi-timeframe confluence, and backtesting optimization. Compatible with Claude, ChatGPT, Gemini, and other AI assistants.
 license: MIT
-last_updated: 2026-10-04
-tags: [mql5, metatrader5, expert-advisor, trading, forex, risk-management, algorithmic-trading, smc, ict, crt, prop-firm]
+last_updated: '2026-10-05'
+tags:
+- mql5
+- metatrader5
+- expert-advisor
+- trading
+- forex
+- risk-management
+- algorithmic-trading
+- smc
+- ict
+- crt
+- prop-firm
 scope_limits: This skill teaches MQL5 development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions.
 ---
 
@@ -418,225 +429,38 @@ bool IsTradeAllowed() {
 ```
 
 ### 5.13 Hedge Position
-Opens an opposite-direction hedge whenever price moves `InpHedgeTriggerPips` against the entry
-and that entry has no hedge currently open. If a hedge stops out at entry price and price drops
-again, the entry is re-hedged — one ACTIVE hedge per entry at a time, unlimited re-hedges.
-**Hedge TP = entry SL, Hedge SL = entry open price.** Hedging accounts only.
-**Hedge break-even:** once a hedge is `InpHedgeBEPips` in profit, its SL moves to the hedge's own open price.
-**Spread-aware re-arm:** after a hedge opens, the entry is disarmed. It is re-armed only when price retraces
-back past the trigger level by `current spread + InpHedgeRearmPips`. This stops a hedge closed at break-even
-(Ask back at hedge open = Bid still beyond trigger) from re-firing on the very next tick.
-Pre-flight (`IsTradeAllowed()`, `IsSpreadOK()`) is the caller's responsibility — do not repeat it here.
-```mql5
-input group "=== TRADE MANAGEMENT ==="
-input double InpHedgeTriggerPips = 20.0;   // Adverse pips from entry before hedging
-input double InpHedgeLotMult     = 1.0;    // Hedge lots = entry lots x this (max 1.5)
-input ulong  InpHedgeMagic       = 12346;  // Magic for hedge trades (MUST differ from InpMagicNumber)
-input double InpHedgeBEPips      = 20.0;   // Hedge profit in pips before SL moves to break-even (0 = off)
-input double InpHedgeRearmPips   = 5.0;    // Extra pips (on top of spread) price must retrace before re-hedging
+Protective arm-then-trigger hedge for **hedging accounts only**. Before implementing, read
+**`references/hedge-position.md`** (in this skill's directory): it holds the complete, compiled module
+(`InitHedge()`, `ManageHedges()` and helpers), wiring, a worked example and the full warnings list.
 
-#define HEDGE_MAX_LOT_MULT 1.5
+**Rule (buy entry; sell is the mirror image):**
+1. **Arm:** a new entry is unarmed. It arms once **Bid > entry + `InpHedgeArmBufferPips`** — the spread alone can never trigger a hedge.
+2. **Trigger:** once armed, when **Bid ≤ entry − `InpHedgeTriggerPips`**, open an opposite hedge and **disarm** the entry. One active hedge per entry.
+3. **Hedge lot:** **original** entry lot × `InpHedgeLotMult` (hard cap 1.5), rounded down; below broker minimum → skip, never round up.
+4. **Hedge TP = entry SL. Hedge SL (backstop) = entry + `InpBE_TriggerPips` + `InpHedgeSLBufferPips`.**
+5. **The EA closes the hedge** on the first tick its entry **reaches break-even** (entry SL at/beyond entry price) **or closes** — the two legs never part across the spread.
+6. **Hedge break-even:** at `InpHedgeBEPips` profit the hedge SL moves to its own open price (0 = off).
+7. **Re-arm:** after a hedge, the same arming rule (step 1) applies again.
 
-// Hedge comment links each hedge to its entry ticket
-string HedgeComment(ulong ticket) {
-    return "HEDGE#" + IntegerToString((long)ticket);
-}
+| Input | Default | Purpose |
+|---|---|---|
+| `InpUseHedge` | false | Enable the module |
+| `InpHedgeArmBufferPips` | 9 | Distance beyond entry, in profit, before arming |
+| `InpHedgeTriggerPips` | 1 | Adverse distance from entry that opens the hedge |
+| `InpHedgeLotMult` | 1.0 | Hedge lot = original entry lot × this (max 1.5) |
+| `InpHedgeSLBufferPips` | 10 | Backstop SL distance beyond entry + BE trigger (> widest spread) |
+| `InpHedgeBEPips` | 20 | Hedge's own break-even (0 = off) |
+| `InpHedgeMagic` | 12346 | Hedge magic — must differ from `InpMagicNumber` |
 
-// Per-entry "disarmed" flag (terminal global variable): set when a hedge opens,
-// cleared when price retraces past the re-arm level. Survives EA reloads.
-string HedgeArmFlag(ulong ticket) {
-    return "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_" + IntegerToString((long)ticket);
-}
+Based on simulation, best result is InpHedgeBEPips=20, InpHedgeArmBufferPips=9 or 10
 
-// Remove flags of entries that are no longer open
-void CleanupHedgeFlags() {
-    string prefix = "HEDGE_" + IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "_";
-    for(int i = GlobalVariablesTotal() - 1; i >= 0; i--) {
-        string name = GlobalVariableName(i);
-        if(StringFind(name, prefix) != 0) continue;
-        ulong ticket = (ulong)StringToInteger(StringSubstr(name, StringLen(prefix)));
-        if(ticket > 0 && !PositionSelectByTicket(ticket)) GlobalVariableDel(name);
-    }
-}
+**Mandatory integration:**
+- `InitHedge()` in `OnInit` (refuses netting accounts, equal magics, invalid inputs, `InpBE_TriggerPips <= 0`).
+- `ManageHedges()` in `OnTick`, **every tick**, **after** the entry break-even manager (Section 5.9), never behind entry filters (session, spread, daily halt) — a hedge only reduces risk.
+- `HedgePip()` uses the same pip conversion as Section 5.9; entry code keeps filtering by `InpMagicNumber` so hedges are never treated as entries.
+- With partial closes, break-even must fire at or before the first partial (the hedge uses the ORIGINAL lot).
 
-// True if a hedge for this entry is currently open.
-// Based on live positions, so it survives EA reloads and terminal restarts.
-// NOTE: changes the selected position — call before PositionSelectByTicket(entry).
-bool HasActiveHedge(ulong ticket) {
-    string cmt = HedgeComment(ticket);
-    for(int i = PositionsTotal() - 1; i >= 0; i--) {
-        ulong t = PositionGetTicket(i);
-        if(t == 0 || !PositionSelectByTicket(t)) continue;
-        if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic) continue;
-        if(PositionGetString(POSITION_COMMENT) == cmt) return true;
-    }
-    return false;
-}
-
-// Returns true only when a hedge was opened for this ticket
-bool HedgePosition(ulong ticket) {
-    if(AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING) return false;
-    if(HasActiveHedge(ticket))                                     return false;   // hedge already open
-    if(!PositionSelectByTicket(ticket))                            return false;
-    if((ulong)PositionGetInteger(POSITION_MAGIC) == InpHedgeMagic) return false;   // never hedge a hedge
-
-    string sym   = PositionGetString(POSITION_SYMBOL);
-    ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-    double openPx = PositionGetDouble(POSITION_PRICE_OPEN);
-    double entSL  = PositionGetDouble(POSITION_SL);
-    double vol    = PositionGetDouble(POSITION_VOLUME);
-    if(entSL <= 0) return false;                                   // entry SL needed for hedge TP
-
-    int    digits  = (int)SymbolInfoInteger(sym, SYMBOL_DIGITS);
-    double point   = SymbolInfoDouble(sym, SYMBOL_POINT);
-    double pip     = (digits == 3 || digits == 5) ? point * 10 : point;
-    double trigger = InpHedgeTriggerPips * pip;
-
-    MqlTick tick;
-    if(!SymbolInfoTick(sym, tick)) return false;
-
-    bool   isBuy = (pType == POSITION_TYPE_BUY);
-    double px    = isBuy ? tick.bid : tick.ask;                    // hedge fills on opposite side
-
-    // Spread-aware re-arm: after a hedge, wait until price retraces past
-    // trigger level + spread + buffer before allowing the next hedge
-    string flag = HedgeArmFlag(ticket);
-    if(GlobalVariableCheck(flag)) {
-        double rearmDist = trigger - (tick.ask - tick.bid) - InpHedgeRearmPips * pip;
-        bool rearmed = isBuy ? (px >= openPx - rearmDist)          // BUY entry: Bid back above level
-                             : (px <= openPx + rearmDist);         // SELL entry: Ask back below level
-        if(rearmed) {
-            GlobalVariableDel(flag);
-            Print("[INFO] Hedge re-armed for #", ticket);
-        }
-        return false;                                              // never re-arm and fire on the same tick
-    }
-
-    if(isBuy  && px > openPx - trigger) return false;              // BUY entry: not yet trigger pips down
-    if(!isBuy && px < openPx + trigger) return false;              // SELL entry: not yet trigger pips up
-
-    double hTP = NormalizeDouble(entSL, digits);                   // hedge TP = entry SL
-    double hSL = NormalizeDouble(openPx, digits);                  // hedge SL = entry open price
-
-    // Broker stops / freeze level check
-    double minDist = (double)MathMax(SymbolInfoInteger(sym, SYMBOL_TRADE_STOPS_LEVEL),
-                                     SymbolInfoInteger(sym, SYMBOL_TRADE_FREEZE_LEVEL)) * point;
-    bool valid = isBuy ? (px - hTP >= minDist && hSL - px >= minDist)
-                       : (hTP - px >= minDist && px - hSL >= minDist);
-    if(!valid) { Print("[FILTER] Hedge #", ticket, " SL/TP inside stops level"); return false; }
-
-    // Lots: entry x multiplier (capped), normalized to broker step
-    double step = SymbolInfoDouble(sym, SYMBOL_VOLUME_STEP);
-    double lots = vol * MathMin(InpHedgeLotMult, HEDGE_MAX_LOT_MULT);
-    lots = MathFloor(lots / step + 1e-9) * step;
-    lots = MathMax(SymbolInfoDouble(sym, SYMBOL_VOLUME_MIN),
-                   MathMin(SymbolInfoDouble(sym, SYMBOL_VOLUME_MAX), lots));
-
-    // Dedicated CTrade so the hedge carries InpHedgeMagic, not the entry magic
-    CTrade hedgeTrade;
-    hedgeTrade.SetExpertMagicNumber(InpHedgeMagic);
-    hedgeTrade.SetDeviationInPoints((ulong)InpSlippage);
-    hedgeTrade.SetTypeFillingBySymbol(sym);
-    hedgeTrade.SetAsyncMode(false);
-    hedgeTrade.LogLevel(LOG_LEVEL_ERRORS);
-
-    string cmt = HedgeComment(ticket);
-    bool ok = isBuy ? hedgeTrade.Sell(lots, sym, px, hSL, hTP, cmt)
-                    : hedgeTrade.Buy(lots,  sym, px, hSL, hTP, cmt);
-    uint rc = hedgeTrade.ResultRetcode();
-    if(!ok || (rc != TRADE_RETCODE_DONE && rc != TRADE_RETCODE_PLACED)) {
-        Print("[ERROR] Hedge #", ticket, " failed: ", hedgeTrade.ResultRetcodeDescription(), " | Code: ", rc);
-        return false;
-    }
-    if(GlobalVariableSet(flag, 1.0) == 0)                          // disarm until price retraces
-        Print("[WARN] Hedge disarm flag not saved for #", ticket, " — may re-hedge too early");
-    Print("[ENTRY] HEDGE #", ticket, " -> ", (isBuy ? "SELL " : "BUY "), lots,
-          " @ ", DoubleToString(px, digits), " SL ", DoubleToString(hSL, digits),
-          " TP ", DoubleToString(hTP, digits));
-    return true;
-}
-
-// Move a hedge's SL to its own open price once it is InpHedgeBEPips in profit
-void HedgeBreakEven(ulong hedgeTicket) {
-    if(InpHedgeBEPips <= 0) return;                                // feature off
-    if(!PositionSelectByTicket(hedgeTicket)) return;
-    if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic) return;   // hedges only
-
-    string sym    = PositionGetString(POSITION_SYMBOL);
-    ENUM_POSITION_TYPE pType = (ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE);
-    double openPx = PositionGetDouble(POSITION_PRICE_OPEN);
-    double curSL  = PositionGetDouble(POSITION_SL);
-    double curTP  = PositionGetDouble(POSITION_TP);
-
-    int    digits = (int)SymbolInfoInteger(sym, SYMBOL_DIGITS);
-    double point  = SymbolInfoDouble(sym, SYMBOL_POINT);
-    double pip    = (digits == 3 || digits == 5) ? point * 10 : point;
-    double beTrig = InpHedgeBEPips * pip;
-    double newSL  = NormalizeDouble(openPx, digits);
-    double minDist = (double)MathMax(SymbolInfoInteger(sym, SYMBOL_TRADE_STOPS_LEVEL),
-                                     SymbolInfoInteger(sym, SYMBOL_TRADE_FREEZE_LEVEL)) * point;
-
-    MqlTick tick;
-    if(!SymbolInfoTick(sym, tick)) return;
-
-    if(pType == POSITION_TYPE_SELL) {                              // SELL hedge closes at Ask
-        if(tick.ask > openPx - beTrig)      return;                // not yet InpHedgeBEPips in profit
-        if(curSL > 0 && curSL <= newSL)     return;                // already at / beyond break-even
-        if(newSL - tick.ask < minDist)      return;                // inside stops level
-    } else {                                                       // BUY hedge closes at Bid
-        if(tick.bid < openPx + beTrig)      return;
-        if(curSL >= newSL)                  return;
-        if(tick.bid - newSL < minDist)      return;
-    }
-
-    CTrade hedgeTrade;
-    hedgeTrade.SetExpertMagicNumber(InpHedgeMagic);
-    hedgeTrade.SetAsyncMode(false);
-    hedgeTrade.LogLevel(LOG_LEVEL_ERRORS);
-    if(!hedgeTrade.PositionModify(hedgeTicket, newSL, curTP)) {
-        Print("[ERROR] Hedge BE #", hedgeTicket, " failed: ", hedgeTrade.ResultRetcodeDescription(),
-              " | Code: ", hedgeTrade.ResultRetcode());
-        return;
-    }
-    Print("[BE] Hedge #", hedgeTicket, " SL moved to break-even ", DoubleToString(newSL, digits));
-}
-
-// OnTick — every tick (not new bar) so neither trigger is missed
-void ManageHedges() {
-    // 1) Open hedges for entries that need one
-    for(int i = PositionsTotal() - 1; i >= 0; i--) {             // backwards: new hedges append at the end
-        ulong ticket = PositionGetTicket(i);
-        if(!PositionSelectByTicket(ticket)) continue;
-        if(PositionGetString(POSITION_SYMBOL) != _Symbol)                 continue;
-        if((ulong)PositionGetInteger(POSITION_MAGIC) != InpMagicNumber)   continue;
-        HedgePosition(ticket);
-    }
-    // 2) Move profitable hedges to break-even
-    for(int i = PositionsTotal() - 1; i >= 0; i--) {
-        ulong ticket = PositionGetTicket(i);
-        if(!PositionSelectByTicket(ticket)) continue;
-        if(PositionGetString(POSITION_SYMBOL) != _Symbol)                 continue;
-        if((ulong)PositionGetInteger(POSITION_MAGIC) != InpHedgeMagic)    continue;
-        HedgeBreakEven(ticket);
-    }
-    // 3) Drop re-arm flags of closed entries
-    CleanupHedgeFlags();
-}
-```
-
-**OnInit validation (mandatory):**
-```mql5
-if(AccountInfoInteger(ACCOUNT_MARGIN_MODE) != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING) {
-    Print("[ERROR] Hedge module requires a HEDGING account"); return INIT_PARAMETERS_INCORRECT;
-}
-if(InpHedgeMagic == InpMagicNumber) {
-    Print("[ERROR] InpHedgeMagic must differ from InpMagicNumber"); return INIT_PARAMETERS_INCORRECT;
-}
-if(InpHedgeTriggerPips <= 0 || InpHedgeLotMult <= 0 || InpHedgeBEPips < 0 || InpHedgeRearmPips < 0)
-    return INIT_PARAMETERS_INCORRECT;
-```
-
-> **Hedge Warnings:** At `InpHedgeLotMult = 1.0`, if price continues to the entry SL the combined loss is capped at roughly `trigger pips + spread`; if price recovers to the entry price the hedge stops out for about the same loss and the entry is left to run to its TP · Re-hedging: every hedge that stops out at entry price costs roughly `trigger pips + spread`, so a market that chops around the trigger level can stack repeated small losses on one entry — consider capping re-hedges per entry if this matters · Hedge break-even: once moved, a reversal closes the hedge at ~0 (minus spread/commission) instead of at entry price; the spread-aware re-arm then requires price to retrace `spread + InpHedgeRearmPips` back past the trigger level before the entry can be hedged again — set `InpHedgeRearmPips` too low and choppy price can still churn hedges, too high and a fast second drop goes unhedged · `InpHedgeBEPips` should be smaller than the distance from hedge open to entry SL, or the hedge reaches TP first · A hedge SL at entry triggers on the opposite side of the spread, so wide spreads can stop the hedge slightly before price truly returns to entry · Multiplier > 1.0 flips net exposure to the hedge direction (hard cap 1.5) · `InpHedgeTriggerPips` must be smaller than the entry SL distance or the SL hits first · Entry SL/TP trigger on one side of the spread and the hedge's on the other, so the two legs may close a moment apart · Netting accounts: an opposite order closes the entry — never run this module there.
+> **Hedge Warnings:** A trade that never trades beyond the arm level is never hedged and takes its full SL · If `InpHedgeBEPips` closes a hedge near its open price, the entry is unhedged until it re-arms — `InpHedgeBEPips = 0` avoids this · `InpHedgeSLBufferPips` must exceed the widest spread, or the backstop (hit by Ask) fires before the entry's break-even (hit by Bid) · Each hedge adds a spread, a commission and overnight swap on both legs; choppy markets that arm and trigger repeatedly stack these costs · Multiplier > 1.0 flips net exposure to the hedge side (cap 1.5) · Brokers charging full margin on hedges can reject large hedges (logged, retried) · Hedges are linked to entries by the `HEDGE#<ticket>` comment — verify the broker keeps comments · Netting accounts: an opposite order closes the entry — never run this module there.
 
 ---
 
@@ -1554,6 +1378,8 @@ public:
 | Point value error | `tickValue / tickSize` only | `tickVal * (_Point / tickSize)` |
 | Hedge on netting account | Open opposite order | Check `ACCOUNT_MARGIN_MODE_RETAIL_HEDGING` first |
 | Hedge reuses entry magic | Hedge counted as entry | Separate `InpHedgeMagic` + dedicated `CTrade` |
+| Tiny hedge trigger fires on the spread | Trigger right after the fill | Arm first: price must trade beyond entry in profit |
+| Hedge outlives its entry | Rely on hedge SL/TP only | EA closes the hedge when the entry closes or reaches break-even |
 
 ---
 
@@ -1601,7 +1427,7 @@ Multi-timeframe confluence (HTF bias + LTF entry) · Moving average systems · O
 Fixed % risk · ATR adaptive · Kelly Criterion · Martingale (when explicitly requested with warnings) · Pyramiding/scaling in · Partial close sequences · Portfolio correlation
 
 **Trade Management**
-Break-even (fixed pips + ATR) · Trailing stop (pips / ATR / structure-based) · Partial close at RR milestones · Time-based exit · Protective hedge (mirrored SL/TP, Section 5.13)
+Break-even (fixed pips + ATR) · Trailing stop (pips / ATR / structure-based) · Partial close at RR milestones · Time-based exit · Protective hedge (arm-then-trigger, closed with its entry, Section 5.13 + `references/hedge-position.md`)
 
 **Prop Firm Compliance**
 FTMO · The5%ers · MyForexFunds · E8 Markets · Daily/total DD monitors · Max position limits · Consistency rules
