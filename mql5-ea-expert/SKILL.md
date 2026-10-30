@@ -1,10 +1,10 @@
 ---
 name: mql5-ea-expert
-version: '2.3.0'
+version: '2.2.0'
 language: en-US
-description: World-class MQL5 architect skill for MetaTrader 5. Covers zero-error EA/indicator/script/library development, institutional-grade patterns (CRT, SMC, ICT), structural market structure (HH/HL bullish, LL/LH bearish, inducement sweep, BOS, CHoCH), prop-firm safety module, ATR risk engine, dashboard panels, CSV logger, multi-timeframe confluence, and backtesting optimization. Compatible with Claude, ChatGPT, Gemini, and other AI assistants.
+description: World-class MQL5 architect skill for MetaTrader 5. Covers zero-error EA/indicator/script/library development, institutional-grade patterns (CRT, SMC, ICT), prop-firm safety module, ATR risk engine, dashboard panels, CSV logger, multi-timeframe confluence, and backtesting optimization. Compatible with Claude, ChatGPT, Gemini, and other AI assistants.
 license: MIT
-last_updated: '2026-10-29'
+last_updated: '2026-10-05'
 tags:
 - mql5
 - metatrader5
@@ -17,10 +17,7 @@ tags:
 - ict
 - crt
 - prop-firm
-- market-structure
-- bos
-- choch
-scope_limits: This skill teaches MQL5 development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions. Market-structure modules (HH/HL/LL/LH, BOS, CHoCH) are labelling tools only and make no claim of trading edge.
+scope_limits: This skill teaches MQL5 development. It will NOT provide financial advice, guarantee profits, or recommend specific trading decisions.
 ---
 
 # MQL5 Expert Advisor Development — Professional Guide v2.0
@@ -140,14 +137,6 @@ Before producing any MQL5 code, explicitly confirm all of the following. If info
 27. CSV trade log required?
 28. Custom `OnTester()` metric for optimization?
 
-### Market Structure (ask only if structure logic is used)
-29. Direction: bullish HH/HL only, bearish LL/LH only, or both?
-30. Swing lookback N (bars each side, default 3)?
-31. BOS confirmation: candle close (default) or wick?
-32. IDM sweep confirmation: wick (default) or close?
-33. When structure breaks (close beyond the anchor): flip to the opposite trend (CHoCH, default) or only log it?
-34. Should the structure engine only label, or may other modules consume its events (entries, stops, filters)?
-
 ---
 
 ## Section 3 — Architecture & File Organization {#section-3}
@@ -164,7 +153,6 @@ Before producing any MQL5 code, explicitly confirm all of the following. If info
 /MQL5/Include/ProjectName/
     Inputs.mqh               ← all input parameters and enums
     SignalEngine.mqh         ← entry/exit signal detection
-    MarketStructure.mqh      ← swing/IDM/BOS/CHoCH, HH-HL & LL-LH engine (references/market-structure.md)
     TradeEngine.mqh          ← CTrade wrapper, order execution
     RiskEngine.mqh           ← lot calculation, DD monitor
     FilterEngine.mqh         ← spread, session, news, day filters
@@ -221,7 +209,6 @@ input group "=== STRATEGY SETTINGS ==="
 input group "=== MONEY MANAGEMENT ==="
 input group "=== TRADE MANAGEMENT ==="
 input group "=== FILTERS ==="
-input group "=== MARKET STRUCTURE ==="
 input group "=== PROP FIRM RULES ==="
 input group "=== VISUAL & ALERTS ==="
 input group "=== EA SETTINGS ==="
@@ -504,9 +491,7 @@ double GetCRTStdDev(int refBar, double multiple) {
 
 ### 6.2 SMC — Smart Money Concepts
 ```mql5
-// BOS Detection — QUICK-LOOK HELPER ONLY.
-// Uses a 1-bar swing, the single highest swing high in the window, and no inducement logic.
-// For structural BOS / HH / HL / LL / LH use the structure engine (Section 6.2.1).
+// BOS Detection
 bool IsBullishBOS(int lookback) {
     double prevSwingHigh = 0;
     for(int i = lookback; i >= 2; i--) {
@@ -538,54 +523,29 @@ int FindBullishOB(int bosBar, int lookback) {
     return -1;
 }
 
-// CHoCH Detection — delegated to the structure engine (Section 6.2.1).
-// Requires CMarketStructure c_MS (references/market-structure.md), updated once per new bar;
-// the timeframe is set in c_MS.Init().
-// expectedDirection: +1 = bullish CHoCH (bearish structure broken), -1 = bearish CHoCH.
-// True only on the bar that closed beyond the structural anchor, never on the first bootstrap.
-bool DetectCHoCH(int expectedDirection) {
-   return c_MS.CHoCHOnLastBar(expectedDirection);
+// CHoCH Detection Function
+bool DetectCHoCH(ENUM_TIMEFRAMES tf, int expectedDirection) {
+   // Track last 3 swing points
+   double swingHigh[3], swingLow[3];
+   int swingHighBar[3], swingLowBar[3];
+   int swingCount = 0;
+
+   for(int i = 2; i < 50 && swingCount < 3; i++) {
+      double hi = iHigh(_Symbol, tf, i);
+      double lo = iLow(_Symbol, tf, i);
+      bool isSwingHigh = (hi > iHigh(_Symbol, tf, i-1) &&
+                          hi > iHigh(_Symbol, tf, i+1));
+      bool isSwingLow  = (lo < iLow(_Symbol, tf, i-1) &&
+                          lo < iLow(_Symbol, tf, i+1));
+      // Store swing points... (simplified logic)
+      if(isSwingHigh || isSwingLow) swingCount++;
+   }
+
+   // Bullish CHoCH: price close is above the most recent swing high AND that swing high is lower than the preceding swing high (confirming a pullback has just been breached).
+   // Bearish CHoCH: price close is below the most recent swing low AND that swing low is higher than the preceding swing low
+   return false; // placeholder
 }
 ```
-
-#### 6.2.1 Structural HH/HL (bullish) and LL/LH (bearish)
-
-Before implementing, read **`references/market-structure.md`** (in this skill's directory): it holds the complete module (`CMarketStructure`, `CMSChart`, `MSEventLabel()`), EA wiring, a test script, verified test vectors and the full warnings list.
-
-A plain "higher swing high/low" is **not** structure. In the ICT/SMC method a high or low counts only after it is confirmed. One code path serves both directions through a direction helper (`Lead`, `Trail`, `Beyond`, `Behind`), so the bearish LL/LH logic is an exact mirror, never a copy.
-
-| Term | Bullish | Bearish (mirror) |
-|---|---|---|
-| **Anchor** | Structural low | Structural high |
-| **IDM (inducement)** | Latest confirmed swing low after the anchor, above it, before the leg extreme | Latest confirmed swing high, below the anchor |
-| **IDM sweep** | Low trades below IDM | High trades above IDM |
-| **Valid extreme** | **HH** = leg extreme at the moment of the sweep | **LL** |
-| **BOS** | Close above HH | Close below LL |
-| **Valid retracement** | **HL** = lowest Low from the HH bar to the BOS bar, must stay above the anchor; becomes the new anchor | **LH** = highest High from the LL bar to the BOS bar |
-| **Structure break (CHoCH)** | Close below the anchor | Close above the anchor |
-
-**Rules:**
-1. **HH/LL needs an IDM sweep.** Without it the break is partial and nothing is labelled.
-2. **HL/LH needs the sweep and a BOS.** A retracement that only wicks beyond the anchor is `RETRACE_REJECTED`, and the anchor is kept.
-3. **A close beyond the anchor flips the trend (CHoCH).** The new anchor is the highest high (or lowest low) of the failed leg, and the old anchor becomes the level to beat.
-4. Swings (N bars strictly higher or lower on each side) are used **only** for IDM selection and bootstrap. The leg extreme is bar-level, so a sweep inside the N-bar confirmation window is still detected on its own bar.
-
-| Input | Default | Purpose |
-|---|---|---|
-| `InpMSSwingLookback` | 3 | N bars each side for swings (1..50) |
-| `InpMSBosMode` | `MS_BOS_CLOSE` | BOS on close (default) or wick |
-| `InpMSSweepMode` | `MS_SWEEP_WICK` | IDM sweep on wick (default) or close |
-| `InpMSHistoryBars` | 2000 | Closed bars replayed by `Rebuild()` |
-| `InpMSDraw` | true | Draw HH/HL/LL/LH, IDM, BOS, CHoCH labels |
-
-**Mandatory integration:**
-- `Init()` and `Rebuild()` in `OnInit`, then `Update()` **only on a new bar** (Section 5.2). Drain `PopEvent()` after both.
-- Closed bars only. Never read bar shift 0 for structure.
-- Consumers read the engine (`Trend()`, `GetAnchor()`, `GetLastExtreme()`, `GetLastRetrace()`, `CHoCHOnLastBar()`); they never run a second swing search.
-- The module places no orders. Entries, exits and risk stay in their own engines, and Section 1 risk rules still apply to anything built on it.
-- Store points by `datetime`/sequence, never by bar shift.
-
-> **Structure Warnings:** Labelling tool only: HH/HL/LL/LH, BOS and CHoCH carry no proven edge, so backtest any rule built on them · The ICT/SMC sources are loose on IDM choice, ties and CHoCH anchors; the defaults here are tunable choices, not truths · A flip needs a bar **close** beyond the anchor, so wicks alone never change the trend · The module was verified against a Python port, not compiled by the author: compile with 0 errors / 0 warnings and run `Test_MarketStructure.mq5` before use · Bootstrap uses the most recent confirmed swings, so labels shortly after attaching can differ from a hand-marked chart · Equal highs/lows are not swings (strict comparison).
 
 ### 6.3 ICT — Inner Circle Trader
 ```mql5
@@ -1420,13 +1380,6 @@ public:
 | Hedge reuses entry magic | Hedge counted as entry | Separate `InpHedgeMagic` + dedicated `CTrade` |
 | Tiny hedge trigger fires on the spread | Trigger right after the fill | Arm first: price must trade beyond entry in profit |
 | Hedge outlives its entry | Rely on hedge SL/TP only | EA closes the hedge when the entry closes or reaches break-even |
-| Structure read from shift 0 | Swing/BOS logic on the forming bar | Closed bars only (`CopyRates` from shift 1) |
-| Swing labelled at its own bar time as if known then | Act on a swing before N bars have confirmed it | Use it only after confirmation; draw it on the swing bar, signal on the confirmation bar |
-| Swings stored by bar shift | `int swingShift` kept across bars | Store `datetime` / sequence number; shifts change every bar |
-| Wick BOS treated as close BOS | Mix `High > level` and `Close > level` | Pick `InpMSBosMode` once and use it everywhere |
-| HH/LL labelled without an inducement sweep | Label every higher high | Label only after the IDM sweep (partial break = no label) |
-| Hand-rolled swing search beside the engine | Second swing detector in the EA | Read `c_MS` getters; one source of structure truth |
-| Bearish logic copy-pasted from bullish | Duplicate class with flipped signs | One engine, direction helpers (`Lead`/`Trail`/`Beyond`/`Behind`) |
 
 ---
 
@@ -1462,7 +1415,7 @@ When delivering any MQL5 solution:
 You are expert-level in every area below. When a request uses these frameworks, implement them directly without asking for methodology explanation:
 
 **Price Action & Structure**
-CRT · SMC · ICT · Wyckoff · Supply & Demand Zones · Harmonic Patterns · Order Blocks · FVG · BOS · CHoCH · Liquidity Sweeps · Displacement · Structural HH/HL (bullish) and LL/LH (bearish) · Inducement (IDM) sweep (Section 6.2.1 + `references/market-structure.md`)
+CRT · SMC · ICT · Wyckoff · Supply & Demand Zones · Harmonic Patterns · Order Blocks · FVG · BOS · CHoCH · Liquidity Sweeps · Displacement
 
 **Session & Time-Based**
 Asian Range · London Kill Zone · NY Kill Zone · Silver Bullet · NWOG / NDOG · Previous Day/Week H/L · Quarterly Theory
@@ -1515,13 +1468,6 @@ CODE QUALITY:
 □ Journal logging active
 □ Magic number unique
 □ OnDeinit releases all handles and objects
-
-MARKET STRUCTURE (if used):
-□ Structure engine reads closed bars only and never repaints an emitted event
-□ Strategy Tester and live runs emit identical events (compare Update() vs a fresh Rebuild())
-□ Mirror test passes: negated prices give mirrored events (bull <-> bear)
-□ Test_MarketStructure.mq5 passes (T1-T4 and the random-walk mirror property)
-□ Structure rules were backtested before being used for entries; labelling is not an edge
 
 BROKER CHECKS:
 □ Verify EA trading allowed
